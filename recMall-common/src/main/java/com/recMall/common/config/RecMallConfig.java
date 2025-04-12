@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
  * @author zedthm
  */
 @Component
-@ConfigurationProperties(prefix = "recMall")
+@ConfigurationProperties(prefix = "rec-mall")
 public class RecMallConfig
 {
     /** 项目名称 */

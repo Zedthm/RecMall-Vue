@@ -1,5 +1,5 @@
 # 项目相关配置
-recMall:
+rec-mall:
   # 名称
   name: RecMall
   # 版本
@@ -7,7 +7,7 @@ recMall:
   # 版权年份
   copyrightYear: 2025
   # 文件路径 示例（ Windows配置D:/recMall/uploadPath，Linux配置 /home/recMall/uploadPath）
-  profile: D:/recMall/uploadPath
+  profile: /home/zedthm/IdeaProjects/RecMall-Vue/uploadPath
   # 获取ip地址开关
   addressEnabled: false
   # 验证码类型 math 数字计算 char 字符验证
@@ -70,7 +70,7 @@ spring:
     # 地址
     host: localhost
     # 端口，默认为6379
-    port: 6379
+    port: 16379
     # 数据库索引
     database: 0
     # 密码
