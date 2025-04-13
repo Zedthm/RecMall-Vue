@@ -11,7 +11,7 @@
             <div style="color: #666666FF; margin-top: 5px">销量：{{goodsData.count}}</div>
             <div style="color: red; margin-top: 15px">疯抢价：<span style="font-size: 20px">{{goodsData.price}} / {{goodsData.unit}}</span></div>
             <div style="margin-top: 20px">
-              <img src="@/assets/imgs/right.png" alt="" style="width: 70%; height: 130px; border-radius: 15px">
+              <img src="@/assets/icons/front/right.png" alt="" style="width: 70%; height: 130px; border-radius: 15px">
             </div>
             <div style="color: #666666FF; margin-top: 20px">商家：<a href="#" @click="navTo('/front/merchant?id=' + goodsData.merchantId)">{{goodsData.merchantName}}</a></div>
             <div style="color: #666666FF; margin-top: 20px">分类：<a href="#" @click="navTo('/front/category?id=' + goodsData.categoryId)">{{goodsData.categoryName}}</a></div>

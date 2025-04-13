@@ -46,7 +46,7 @@
             </div>
 
             <div style="margin-top: 20px; padding: 0 15px">
-              <img src="@/assets/imgs/right.png" alt="" style="height: 150px; width: 100%; border-radius: 20px">
+              <img src="@/assets/icons/front/right.png" alt="" style="height: 150px; width: 100%; border-radius: 20px">
             </div>
 
             <div style="margin: 20px 10px 10px 10px; width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">
@@ -58,22 +58,22 @@
             <div style="display: flex; margin-top: 50px">
               <div @click="goToProfile('/front/collect')" style="flex: 1; text-align: center; cursor: pointer;"
                    @mouseover="changeCursorStyle" @mouseleave="resetCursorStyle">
-                <img src="@/assets/imgs/收藏.png" alt="" style="height: 25px; width: 25px">
+                <img src="@/assets/icons/front/收藏.png" alt="" style="height: 25px; width: 25px">
                 <div>我的收藏</div>
               </div>
               <div @click="goToProfile('/front/address')" style="flex: 1; text-align: center; cursor: pointer;" @mouseover="changeCursorStyle"
                    @mouseleave="resetCursorStyle">
-                <img src="@/assets/imgs/店铺.png" alt="" style="height: 25px; width: 25px">
+                <img src="@/assets/icons/front/店铺.png" alt="" style="height: 25px; width: 25px">
                 <div>我的地址</div>
               </div>
               <div @click="goToProfile('/front/cart')" style="flex: 1; text-align: center; cursor: pointer;" @mouseover="changeCursorStyle"
                    @mouseleave="resetCursorStyle">
-                <img src="@/assets/imgs/购物车.png" alt="" style="height: 25px; width: 25px">
+                <img src="@/assets/icons/front/购物车.png" alt="" style="height: 25px; width: 25px">
                 <div>我的购物车</div>
               </div>
               <div @click="goToProfile('/front/orders')" style="flex: 1; text-align: center; cursor: pointer;" @mouseover="changeCursorStyle"
                    @mouseleave="resetCursorStyle">
-                <img src="@/assets/imgs/订单.png" alt="" style="height: 25px; width: 25px">
+                <img src="@/assets/icons/front/订单.png" alt="" style="height: 25px; width: 25px">
                 <div>我的订单</div>
               </div>
             </div>
@@ -127,19 +127,19 @@ export default {
       top: null,
       notice: [],
       carousel_top: [
-        require('@/assets/imgs/carousel-1.png'),
-        require('@/assets/imgs/carousel-2.png'),
-        require('@/assets/imgs/carousel-9.png'),
+        require('@/assets/icons/front/carousel-1.png'),
+        require('@/assets/icons/front/carousel-2.png'),
+        require('@/assets/icons/front/carousel-9.png'),
       ],
       carousel_left: [
-        require('@/assets/imgs/carousel-3.png'),
-        require('@/assets/imgs/carousel-4.png'),
-        require('@/assets/imgs/carousel-5.png'),
+        require('@/assets/icons/front/carousel-3.png'),
+        require('@/assets/icons/front/carousel-4.png'),
+        require('@/assets/icons/front/carousel-5.png'),
       ],
       carousel_right: [
-        require('@/assets/imgs/carousel-6.png'),
-        require('@/assets/imgs/carousel-7.png'),
-        require('@/assets/imgs/carousel-8.png'),
+        require('@/assets/icons/front/carousel-6.png'),
+        require('@/assets/icons/front/carousel-7.png'),
+        require('@/assets/icons/front/carousel-8.png'),
       ],
       goodsData: [],
       recommendData: [],
@@ -246,17 +246,17 @@ export default {
   min-height: 100vh;
   /*overflow: hidden;*/
   background-size: 100%;
-  background-image: url('@/assets/imgs/img.png');
+  background-image: url('@/assets/icons/front/img.png');
 }
 .left {
   width: 17%;
   background-repeat: no-repeat;
-  background-image: url('@/assets/imgs/left-img.png');
+  background-image: url('@/assets/icons/front/left-img.png');
 }
 .right {
   width: 17%;
   background-repeat: no-repeat;
-  background-image: url('@/assets/imgs/right-img.png')
+  background-image: url('@/assets/icons/front/right-img.png')
 }
 .el-col-5{
   width: 20%;
