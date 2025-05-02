@@ -17,6 +17,30 @@
 
     <dependencies>
 
+        <!-- 邮件发送 -->
+        <dependency>
+            <groupId>javax.mail</groupId>
+            <artifactId>javax.mail-api</artifactId>
+            <version>1.5.6</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.mail</groupId>
+            <artifactId>javax.mail</artifactId>
+            <version>1.5.3</version>
+        </dependency>
+
+        <!-- 阿里云短信服务 -->
+        <dependency>
+            <groupId>com.aliyun</groupId>
+            <artifactId>aliyun-java-sdk-core</artifactId>
+            <version>3.2.6</version>
+        </dependency>
+        <dependency>
+            <groupId>com.aliyun</groupId>
+            <artifactId>aliyun-java-sdk-dysmsapi</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
         <!-- Spring框架基本的核心工具 -->
         <dependency>
             <groupId>org.springframework</groupId>

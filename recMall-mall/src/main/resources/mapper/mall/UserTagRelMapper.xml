@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.recMall.mall.mapper.UserTagRelMapper">
+    
+    <resultMap type="UserTagRel" id="UserTagRelResult">
+        <result property="userId"    column="user_id"    />
+        <result property="tagId"    column="tag_id"    />
+    </resultMap>
+
+    <sql id="selectUserTagRelVo">
+        select user_id, tag_id from user_tag_rel
+    </sql>
+
+    <select id="selectUserTagRelList" parameterType="UserTagRel" resultMap="UserTagRelResult">
+        <include refid="selectUserTagRelVo"/>
+        <where>  
+        </where>
+    </select>
+    
+    <select id="selectUserTagRelByUserId" parameterType="String" resultMap="UserTagRelResult">
+        <include refid="selectUserTagRelVo"/>
+        where user_id = #{userId}
+    </select>
+
+    <insert id="insertUserTagRel" parameterType="UserTagRel">
+        insert into user_tag_rel
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId != null">user_id,</if>
+            <if test="tagId != null">tag_id,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userId != null">#{userId},</if>
+            <if test="tagId != null">#{tagId},</if>
+         </trim>
+    </insert>
+
+    <update id="updateUserTagRel" parameterType="UserTagRel">
+        update user_tag_rel
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="tagId != null">tag_id = #{tagId},</if>
+        </trim>
+        where user_id = #{userId}
+    </update>
+
+    <delete id="deleteUserTagRelByUserId" parameterType="String">
+        delete from user_tag_rel where user_id = #{userId}
+    </delete>
+
+    <delete id="deleteUserTagRelByUserIds" parameterType="String">
+        delete from user_tag_rel where user_id in 
+        <foreach item="userId" collection="array" open="(" separator="," close=")">
+            #{userId}
+        </foreach>
+    </delete>
+</mapper>

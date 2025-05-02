@@ -43,6 +43,49 @@
           <img :src="codeUrl" @click="getCode" class="register-code-img"/>
         </div>
       </el-form-item>
+
+      <!-- 注册方式切换 -->
+      <el-radio-group v-model="registerForm.registerType">
+        <el-radio-button label="phonenumber">手机注册</el-radio-button>
+        <el-radio-button label="email">邮箱注册</el-radio-button>
+      </el-radio-group>
+
+      <!-- 手机号注册 -->
+      <div v-if="registerForm.registerType === 'phonenumber'">
+        <el-form-item prop="phonenumber">
+          <el-input v-model="registerForm.phonenumber" placeholder="请输入手机号">
+            <template slot="prepend">+86</template>
+          </el-input>
+        </el-form-item>
+        <el-form-item prop="smsCode">
+          <el-input v-model="registerForm.smsCode" placeholder="短信验证码" style="width: 80%">
+            <el-button
+              slot="append"
+              :disabled="smsCountdown > 0"
+              @click="sendSmsCode">
+              {{ smsCountdown > 0 ? `${smsCountdown}s后重试` : '获取验证码' }}
+            </el-button>
+          </el-input>
+        </el-form-item>
+      </div>
+
+      <!-- 邮箱注册 -->
+      <div v-else>
+        <el-form-item prop="email">
+          <el-input v-model="registerForm.email" placeholder="请输入邮箱"></el-input>
+        </el-form-item>
+        <el-form-item prop="emailCode">
+          <el-input v-model="registerForm.emailCode" placeholder="邮箱验证码" style="width: 80%">
+            <el-button
+              slot="append"
+              :disabled="emailCountdown > 0"
+              @click="sendEmailCode">
+              {{ emailCountdown > 0 ? `${emailCountdown}s后重试` : '获取验证码' }}
+            </el-button>
+          </el-input>
+        </el-form-item>
+      </div>
+
       <el-form-item style="width:100%;">
         <el-button
           :loading="loading"
@@ -67,7 +110,7 @@
 </template>
 
 <script>
-import { getCodeImg, register } from "@/api/login";
+import { getCodeImg, register, getSmsOrEmailCode } from "@/api/login";
 
 export default {
   name: "Register",
@@ -83,13 +126,36 @@ export default {
       title: process.env.VUE_APP_TITLE,
       codeUrl: "",
       registerForm: {
+        registerType: '',
+        phonenumber: '',
+        email: '',
+        smsCode: '',
+        emailCode: '',
         username: "",
         password: "",
         confirmPassword: "",
         code: "",
         uuid: ""
       },
+      smsCountdown: 0,
+      emailCountdown: 0,
       registerRules: {
+        phonenumber: [
+          { required: true, message: '手机号不能为空' },
+          { pattern: /^1[3-9]\d{9}$/, message: '手机号格式错误' }
+        ],
+        email: [
+          { required: true, message: '邮箱不能为空' },
+          { type: 'email', message: '邮箱格式不正确' }
+        ],
+        smsCode: [
+          { required: true, message: '验证码不能为空' },
+          { pattern: /^\d{6}$/, message: '6位数字验证码' }
+        ],
+        emailCode: [
+          { required: true, message: '验证码不能为空' },
+          { pattern: /^\d{6}$/, message: '6位数字验证码' }
+        ],
         username: [
           { required: true, trigger: "blur", message: "请输入您的账号" },
           { min: 2, max: 20, message: '用户账号长度必须介于 2 和 20 之间', trigger: 'blur' }
@@ -113,6 +179,109 @@ export default {
     this.getCode();
   },
   methods: {
+    // 发送短信验证码 (Promise链式调用风格)
+    sendSmsCode() {
+      this.$refs.registerForm.validateField('phonenumber', errorMessage => {
+        if (errorMessage) { // 有错误信息时返回
+          this.$message.warning('请填写正确的手机号')
+          return
+        }
+
+        const loading = this.$loading({
+          lock: true,
+          text: '发送中...',
+          spinner: 'el-icon-loading'
+        })
+
+        getSmsOrEmailCode({
+          type: 'phonenumber',
+          account: this.registerForm.phonenumber
+        }).then(response => {
+          if (response.code === 200) {
+            this.$message.success('验证码已发送')
+            this.startSmsCountdown()
+          } else {
+            this.$message.error(response.msg)
+          }
+        }).catch(error => {
+          this.handleSendError(error, 'sms')
+        }).finally(() => {
+          loading.close()
+        })
+      })
+    },
+
+    // 发送邮箱验证码 (统一风格)
+    sendEmailCode() {
+      this.$refs.registerForm.validateField('email', errorMessage => {
+        if (errorMessage) { // 有错误信息时返回
+          this.$message.warning('请填写正确的邮箱')
+          return
+        }
+
+        const loading = this.$loading({
+          lock: true,
+          text: '发送中...',
+          spinner: 'el-icon-loading'
+        })
+
+        getSmsOrEmailCode({
+          type: 'email',
+          account: this.registerForm.email
+        }).then(response => {
+          if (response.code === 200) {
+            this.$message.success('验证码已发送至邮箱')
+            this.startEmailCountdown()
+          } else {
+            this.$message.error(response.msg)
+          }
+        }).catch(error => {
+          this.handleSendError(error, 'email')
+        }).finally(() => {
+          loading.close()
+        })
+      })
+    },
+
+    // 统一错误处理方法
+    handleSendError(error, type) {
+      const typeMap = {
+        sms: { serviceName: '短信', networkError: '短信网关' },
+        email: { serviceName: '邮件', networkError: '邮件服务器' }
+      }
+
+      if (error.response) {
+        console.error(`${typeMap[type].serviceName}服务异常:`, error.response.data)
+        this.$message.error(`发送失败: ${error.response.data.message || '服务异常'}`)
+      } else if (error.request) {
+        console.error('请求未响应:', error.request)
+        this.$message.error(`无法连接${typeMap[type].networkError}`)
+      } else {
+        console.error('系统错误:', error.message)
+        this.$message.error(`${typeMap[type].serviceName}发送系统错误`)
+      }
+    },
+    // 倒计时处理
+    startSmsCountdown() {
+      this.smsCountdown = 60;
+      const timer = setInterval(() => {
+        this.smsCountdown--;
+        if (this.smsCountdown <= 0) {
+          clearInterval(timer);
+        }
+      }, 1000);
+    },
+
+    startEmailCountdown() {
+      this.emailCountdown = 60;
+      const timer = setInterval(() => {
+        this.emailCountdown--;
+        if (this.emailCountdown <= 0) {
+          clearInterval(timer);
+        }
+      }, 1000);
+    },
+
     getCode() {
       getCodeImg().then(res => {
         this.captchaEnabled = res.captchaEnabled === undefined ? true : res.captchaEnabled;

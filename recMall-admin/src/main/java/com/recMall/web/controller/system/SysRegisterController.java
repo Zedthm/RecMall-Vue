@@ -1,5 +1,9 @@
 package com.recMall.web.controller.system;
 
+import com.aliyuncs.exceptions.ClientException;
+import com.recMall.common.constant.CacheConstants;
+import com.recMall.common.core.redis.RedisCache;
+import com.recMall.framework.web.service.CaptchaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -10,6 +14,9 @@ import com.recMall.common.core.domain.model.RegisterBody;
 import com.recMall.common.utils.StringUtils;
 import com.recMall.framework.web.service.SysRegisterService;
 import com.recMall.system.service.ISysConfigService;
+
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 注册验证

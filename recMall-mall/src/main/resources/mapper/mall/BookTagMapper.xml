@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.recMall.mall.mapper.BookTagMapper">
+    
+    <resultMap type="BookTag" id="BookTagResult">
+        <result property="tagId"    column="tag_id"    />
+        <result property="nameZh"    column="name_zh"    />
+        <result property="nameEn"    column="name_en"    />
+    </resultMap>
+
+    <sql id="selectBookTagVo">
+        select tag_id, name_zh, name_en from book_tag
+    </sql>
+
+    <select id="selectBookTagList" parameterType="BookTag" resultMap="BookTagResult">
+        <include refid="selectBookTagVo"/>
+        <where>  
+            <if test="nameZh != null  and nameZh != ''"> and name_zh = #{nameZh}</if>
+            <if test="nameEn != null  and nameEn != ''"> and name_en = #{nameEn}</if>
+        </where>
+    </select>
+    
+    <select id="selectBookTagByTagId" parameterType="String" resultMap="BookTagResult">
+        <include refid="selectBookTagVo"/>
+        where tag_id = #{tagId}
+    </select>
+
+    <insert id="insertBookTag" parameterType="BookTag">
+        insert into book_tag
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="tagId != null">tag_id,</if>
+            <if test="nameZh != null and nameZh != ''">name_zh,</if>
+            <if test="nameEn != null and nameEn != ''">name_en,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="tagId != null">#{tagId},</if>
+            <if test="nameZh != null and nameZh != ''">#{nameZh},</if>
+            <if test="nameEn != null and nameEn != ''">#{nameEn},</if>
+         </trim>
+    </insert>
+
+    <update id="updateBookTag" parameterType="BookTag">
+        update book_tag
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="nameZh != null and nameZh != ''">name_zh = #{nameZh},</if>
+            <if test="nameEn != null and nameEn != ''">name_en = #{nameEn},</if>
+        </trim>
+        where tag_id = #{tagId}
+    </update>
+
+    <delete id="deleteBookTagByTagId" parameterType="String">
+        delete from book_tag where tag_id = #{tagId}
+    </delete>
+
+    <delete id="deleteBookTagByTagIds" parameterType="String">
+        delete from book_tag where tag_id in 
+        <foreach item="tagId" collection="array" open="(" separator="," close=")">
+            #{tagId}
+        </foreach>
+    </delete>
+</mapper>

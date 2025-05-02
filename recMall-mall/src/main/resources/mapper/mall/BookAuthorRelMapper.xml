@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.recMall.mall.mapper.BookAuthorRelMapper">
+    
+    <resultMap type="BookAuthorRel" id="BookAuthorRelResult">
+        <result property="bookId"    column="book_id"    />
+        <result property="authorId"    column="author_id"    />
+    </resultMap>
+
+    <sql id="selectBookAuthorRelVo">
+        select book_id, author_id from book_author_rel
+    </sql>
+
+    <select id="selectBookAuthorRelList" parameterType="BookAuthorRel" resultMap="BookAuthorRelResult">
+        <include refid="selectBookAuthorRelVo"/>
+        <where>  
+        </where>
+    </select>
+    
+    <select id="selectBookAuthorRelByBookId" parameterType="String" resultMap="BookAuthorRelResult">
+        <include refid="selectBookAuthorRelVo"/>
+        where book_id = #{bookId}
+    </select>
+
+    <insert id="insertBookAuthorRel" parameterType="BookAuthorRel">
+        insert into book_author_rel
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="bookId != null">book_id,</if>
+            <if test="authorId != null">author_id,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="bookId != null">#{bookId},</if>
+            <if test="authorId != null">#{authorId},</if>
+         </trim>
+    </insert>
+
+    <update id="updateBookAuthorRel" parameterType="BookAuthorRel">
+        update book_author_rel
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="authorId != null">author_id = #{authorId},</if>
+        </trim>
+        where book_id = #{bookId}
+    </update>
+
+    <delete id="deleteBookAuthorRelByBookId" parameterType="String">
+        delete from book_author_rel where book_id = #{bookId}
+    </delete>
+
+    <delete id="deleteBookAuthorRelByBookIds" parameterType="String">
+        delete from book_author_rel where book_id in 
+        <foreach item="bookId" collection="array" open="(" separator="," close=")">
+            #{bookId}
+        </foreach>
+    </delete>
+</mapper>

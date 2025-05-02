@@ -246,17 +246,17 @@ export default {
   min-height: 100vh;
   /*overflow: hidden;*/
   background-size: 100%;
-  background-image: url('@/assets/icons/front/img.png');
+  background-image: url('~@/assets/icons/front/img.png');
 }
 .left {
   width: 17%;
   background-repeat: no-repeat;
-  background-image: url('@/assets/icons/front/left-img.png');
+  background-image: url('~@/assets/icons/front/left-img.png');
 }
 .right {
   width: 17%;
   background-repeat: no-repeat;
-  background-image: url('@/assets/icons/front/right-img.png')
+  background-image: url('~@/assets/icons/front/right-img.png')
 }
 .el-col-5{
   width: 20%;

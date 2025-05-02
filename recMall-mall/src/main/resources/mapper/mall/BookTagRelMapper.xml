@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.recMall.mall.mapper.BookTagRelMapper">
+    
+    <resultMap type="BookTagRel" id="BookTagRelResult">
+        <result property="bookId"    column="book_id"    />
+        <result property="tagId"    column="tag_id"    />
+    </resultMap>
+
+    <sql id="selectBookTagRelVo">
+        select book_id, tag_id from book_tag_rel
+    </sql>
+
+    <select id="selectBookTagRelList" parameterType="BookTagRel" resultMap="BookTagRelResult">
+        <include refid="selectBookTagRelVo"/>
+        <where>  
+        </where>
+    </select>
+    
+    <select id="selectBookTagRelByBookId" parameterType="String" resultMap="BookTagRelResult">
+        <include refid="selectBookTagRelVo"/>
+        where book_id = #{bookId}
+    </select>
+
+    <insert id="insertBookTagRel" parameterType="BookTagRel">
+        insert into book_tag_rel
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="bookId != null">book_id,</if>
+            <if test="tagId != null">tag_id,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="bookId != null">#{bookId},</if>
+            <if test="tagId != null">#{tagId},</if>
+         </trim>
+    </insert>
+
+    <update id="updateBookTagRel" parameterType="BookTagRel">
+        update book_tag_rel
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="tagId != null">tag_id = #{tagId},</if>
+        </trim>
+        where book_id = #{bookId}
+    </update>
+
+    <delete id="deleteBookTagRelByBookId" parameterType="String">
+        delete from book_tag_rel where book_id = #{bookId}
+    </delete>
+
+    <delete id="deleteBookTagRelByBookIds" parameterType="String">
+        delete from book_tag_rel where book_id in 
+        <foreach item="bookId" collection="array" open="(" separator="," close=")">
+            #{bookId}
+        </foreach>
+    </delete>
+</mapper>

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.recMall.mall.mapper.AuthorMapper">
+    
+    <resultMap type="Author" id="AuthorResult">
+        <result property="authorId"    column="author_id"    />
+        <result property="name"    column="name"    />
+    </resultMap>
+
+    <sql id="selectAuthorVo">
+        select author_id, name from author
+    </sql>
+
+    <select id="selectAuthorList" parameterType="Author" resultMap="AuthorResult">
+        <include refid="selectAuthorVo"/>
+        <where>  
+            <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
+        </where>
+    </select>
+    
+    <select id="selectAuthorByAuthorId" parameterType="String" resultMap="AuthorResult">
+        <include refid="selectAuthorVo"/>
+        where author_id = #{authorId}
+    </select>
+
+    <insert id="insertAuthor" parameterType="Author">
+        insert into author
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="authorId != null">author_id,</if>
+            <if test="name != null and name != ''">name,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="authorId != null">#{authorId},</if>
+            <if test="name != null and name != ''">#{name},</if>
+         </trim>
+    </insert>
+
+    <update id="updateAuthor" parameterType="Author">
+        update author
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="name != null and name != ''">name = #{name},</if>
+        </trim>
+        where author_id = #{authorId}
+    </update>
+
+    <delete id="deleteAuthorByAuthorId" parameterType="String">
+        delete from author where author_id = #{authorId}
+    </delete>
+
+    <delete id="deleteAuthorByAuthorIds" parameterType="String">
+        delete from author where author_id in 
+        <foreach item="authorId" collection="array" open="(" separator="," close=")">
+            #{authorId}
+        </foreach>
+    </delete>
+</mapper>

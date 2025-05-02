@@ -58,3 +58,17 @@ export function getCodeImg() {
     timeout: 20000
   })
 }
+
+// 验证码发送服务（增强参数处理）
+export function getSmsOrEmailCode(params) {
+  const requestData = {
+    type: params.type,
+    [params.type === 'phonenumber' ? 'phonenumber' : 'email']: params.account
+  }
+
+  return request({
+    url: '/register/sendCode',
+    method: 'post',
+    data: requestData
+  })
+}

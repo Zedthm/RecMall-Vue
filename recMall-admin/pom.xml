@@ -60,6 +60,12 @@
             <groupId>com.recMall</groupId>
             <artifactId>recMall-generator</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.recMall</groupId>
+            <artifactId>recMall-mall</artifactId>
+            <version>3.8.9</version>
+            <scope>compile</scope>
+        </dependency>
 
     </dependencies>
 

@@ -72,8 +72,8 @@ module.exports = {
     ],
   },
   chainWebpack(config) {
-    config.plugins.delete('preload') // TODO: need test
-    config.plugins.delete('prefetch') // TODO: need test
+    config.plugins.delete('preload') // TODO: need test.py
+    config.plugins.delete('prefetch') // TODO: need test.py
 
     // set svg-sprite-loader
     config.module

@@ -227,6 +227,7 @@
         <module>recMall-quartz</module>
         <module>recMall-generator</module>
         <module>recMall-common</module>
+        <module>recMall-mall</module>
     </modules>
     <packaging>pom</packaging>
 
