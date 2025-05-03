@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.recMall.mall.mapper.MallUserProfilesMapper">
+    
+    <resultMap type="MallUserProfiles" id="MallUserProfilesResult">
+        <result property="userId"    column="user_id"    />
+        <result property="userAvgRating"    column="user_avg_rating"    />
+        <result property="userRatingStd"    column="user_rating_std"    />
+        <result property="userRatingCount"    column="user_rating_count"    />
+        <result property="userTag1"    column="user_tag1"    />
+        <result property="userTag2"    column="user_tag2"    />
+        <result property="userTag3"    column="user_tag3"    />
+        <result property="userTag4"    column="user_tag4"    />
+        <result property="userTag5"    column="user_tag5"    />
+    </resultMap>
+
+    <sql id="selectMallUserProfilesVo">
+        select user_id, user_avg_rating, user_rating_std, user_rating_count, user_tag1, user_tag2, user_tag3, user_tag4, user_tag5 from mall_user_profiles
+    </sql>
+
+    <select id="selectMallUserProfilesList" parameterType="MallUserProfiles" resultMap="MallUserProfilesResult">
+        <include refid="selectMallUserProfilesVo"/>
+        <where>  
+            <if test="userAvgRating != null "> and user_avg_rating = #{userAvgRating}</if>
+            <if test="userRatingStd != null "> and user_rating_std = #{userRatingStd}</if>
+            <if test="userRatingCount != null  and userRatingCount != ''"> and user_rating_count = #{userRatingCount}</if>
+            <if test="userTag1 != null  and userTag1 != ''"> and user_tag1 = #{userTag1}</if>
+            <if test="userTag2 != null  and userTag2 != ''"> and user_tag2 = #{userTag2}</if>
+            <if test="userTag3 != null  and userTag3 != ''"> and user_tag3 = #{userTag3}</if>
+            <if test="userTag4 != null  and userTag4 != ''"> and user_tag4 = #{userTag4}</if>
+            <if test="userTag5 != null  and userTag5 != ''"> and user_tag5 = #{userTag5}</if>
+        </where>
+    </select>
+    
+    <select id="selectMallUserProfilesByUserId" parameterType="String" resultMap="MallUserProfilesResult">
+        <include refid="selectMallUserProfilesVo"/>
+        where user_id = #{userId}
+    </select>
+
+    <insert id="insertMallUserProfiles" parameterType="MallUserProfiles" useGeneratedKeys="true" keyProperty="userId">
+        insert into mall_user_profiles
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userAvgRating != null">user_avg_rating,</if>
+            <if test="userRatingStd != null">user_rating_std,</if>
+            <if test="userRatingCount != null and userRatingCount != ''">user_rating_count,</if>
+            <if test="userTag1 != null">user_tag1,</if>
+            <if test="userTag2 != null">user_tag2,</if>
+            <if test="userTag3 != null">user_tag3,</if>
+            <if test="userTag4 != null">user_tag4,</if>
+            <if test="userTag5 != null">user_tag5,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userAvgRating != null">#{userAvgRating},</if>
+            <if test="userRatingStd != null">#{userRatingStd},</if>
+            <if test="userRatingCount != null and userRatingCount != ''">#{userRatingCount},</if>
+            <if test="userTag1 != null">#{userTag1},</if>
+            <if test="userTag2 != null">#{userTag2},</if>
+            <if test="userTag3 != null">#{userTag3},</if>
+            <if test="userTag4 != null">#{userTag4},</if>
+            <if test="userTag5 != null">#{userTag5},</if>
+         </trim>
+    </insert>
+
+    <update id="updateMallUserProfiles" parameterType="MallUserProfiles">
+        update mall_user_profiles
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userAvgRating != null">user_avg_rating = #{userAvgRating},</if>
+            <if test="userRatingStd != null">user_rating_std = #{userRatingStd},</if>
+            <if test="userRatingCount != null and userRatingCount != ''">user_rating_count = #{userRatingCount},</if>
+            <if test="userTag1 != null">user_tag1 = #{userTag1},</if>
+            <if test="userTag2 != null">user_tag2 = #{userTag2},</if>
+            <if test="userTag3 != null">user_tag3 = #{userTag3},</if>
+            <if test="userTag4 != null">user_tag4 = #{userTag4},</if>
+            <if test="userTag5 != null">user_tag5 = #{userTag5},</if>
+        </trim>
+        where user_id = #{userId}
+    </update>
+
+    <delete id="deleteMallUserProfilesByUserId" parameterType="String">
+        delete from mall_user_profiles where user_id = #{userId}
+    </delete>
+
+    <delete id="deleteMallUserProfilesByUserIds" parameterType="String">
+        delete from mall_user_profiles where user_id in 
+        <foreach item="userId" collection="array" open="(" separator="," close=")">
+            #{userId}
+        </foreach>
+    </delete>
+</mapper>

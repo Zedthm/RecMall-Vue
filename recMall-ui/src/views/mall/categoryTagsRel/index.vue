@@ -1,58 +1,18 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
-      <el-form-item label="订单ID" prop="orderId">
+      <el-form-item label="分类名称" prop="categoryName">
         <el-input
-          v-model="queryParams.orderId"
-          placeholder="请输入订单ID"
+          v-model="queryParams.categoryName"
+          placeholder="请输入分类名称"
           clearable
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="商品ID" prop="goodsId">
+      <el-form-item label="标签名称" prop="tagName">
         <el-input
-          v-model="queryParams.goodsId"
-          placeholder="请输入商品ID"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="商家ID" prop="merchantId">
-        <el-input
-          v-model="queryParams.merchantId"
-          placeholder="请输入商家ID"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="商品数量" prop="num">
-        <el-input
-          v-model="queryParams.num"
-          placeholder="请输入商品数量"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="用户ID" prop="userId">
-        <el-input
-          v-model="queryParams.userId"
-          placeholder="请输入用户ID"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="订单价格" prop="price">
-        <el-input
-          v-model="queryParams.price"
-          placeholder="请输入订单价格"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="地址ID" prop="addressId">
-        <el-input
-          v-model="queryParams.addressId"
-          placeholder="请输入地址ID"
+          v-model="queryParams.tagName"
+          placeholder="请输入标签名称"
           clearable
           @keyup.enter.native="handleQuery"
         />
@@ -71,7 +31,7 @@
           icon="el-icon-plus"
           size="mini"
           @click="handleAdd"
-          v-hasPermi="['mall:orders:add']"
+          v-hasPermi="['mall:categoryTagsRel:add']"
         >新增</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -82,7 +42,7 @@
           size="mini"
           :disabled="single"
           @click="handleUpdate"
-          v-hasPermi="['mall:orders:edit']"
+          v-hasPermi="['mall:categoryTagsRel:edit']"
         >修改</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -93,7 +53,7 @@
           size="mini"
           :disabled="multiple"
           @click="handleDelete"
-          v-hasPermi="['mall:orders:remove']"
+          v-hasPermi="['mall:categoryTagsRel:remove']"
         >删除</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -103,23 +63,18 @@
           icon="el-icon-download"
           size="mini"
           @click="handleExport"
-          v-hasPermi="['mall:orders:export']"
+          v-hasPermi="['mall:categoryTagsRel:export']"
         >导出</el-button>
       </el-col>
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
-    <el-table v-loading="loading" :data="ordersList" @selection-change="handleSelectionChange">
+    <el-table v-loading="loading" :data="categoryTagsRelList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="主键ID" align="center" prop="id" />
-      <el-table-column label="订单ID" align="center" prop="orderId" />
-      <el-table-column label="商品ID" align="center" prop="goodsId" />
-      <el-table-column label="商家ID" align="center" prop="merchantId" />
-      <el-table-column label="商品数量" align="center" prop="num" />
-      <el-table-column label="用户ID" align="center" prop="userId" />
-      <el-table-column label="订单价格" align="center" prop="price" />
-      <el-table-column label="地址ID" align="center" prop="addressId" />
-      <el-table-column label="订单状态" align="center" prop="status" />
+      <el-table-column label="分类ID" align="center" prop="categoryId" />
+      <el-table-column label="分类名称" align="center" prop="categoryName" />
+      <el-table-column label="标签ID" align="center" prop="tagId" />
+      <el-table-column label="标签名称" align="center" prop="tagName" />
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
@@ -127,14 +82,14 @@
             type="text"
             icon="el-icon-edit"
             @click="handleUpdate(scope.row)"
-            v-hasPermi="['mall:orders:edit']"
+            v-hasPermi="['mall:categoryTagsRel:edit']"
           >修改</el-button>
           <el-button
             size="mini"
             type="text"
             icon="el-icon-delete"
             @click="handleDelete(scope.row)"
-            v-hasPermi="['mall:orders:remove']"
+            v-hasPermi="['mall:categoryTagsRel:remove']"
           >删除</el-button>
         </template>
       </el-table-column>
@@ -148,29 +103,14 @@
       @pagination="getList"
     />
 
-    <!-- 添加或修改订单信息对话框 -->
+    <!-- 添加或修改分类与标签的关联关系对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="订单ID" prop="orderId">
-          <el-input v-model="form.orderId" placeholder="请输入订单ID" />
+        <el-form-item label="分类名称" prop="categoryName">
+          <el-input v-model="form.categoryName" placeholder="请输入分类名称" />
         </el-form-item>
-        <el-form-item label="商品ID" prop="goodsId">
-          <el-input v-model="form.goodsId" placeholder="请输入商品ID" />
-        </el-form-item>
-        <el-form-item label="商家ID" prop="merchantId">
-          <el-input v-model="form.merchantId" placeholder="请输入商家ID" />
-        </el-form-item>
-        <el-form-item label="商品数量" prop="num">
-          <el-input v-model="form.num" placeholder="请输入商品数量" />
-        </el-form-item>
-        <el-form-item label="用户ID" prop="userId">
-          <el-input v-model="form.userId" placeholder="请输入用户ID" />
-        </el-form-item>
-        <el-form-item label="订单价格" prop="price">
-          <el-input v-model="form.price" placeholder="请输入订单价格" />
-        </el-form-item>
-        <el-form-item label="地址ID" prop="addressId">
-          <el-input v-model="form.addressId" placeholder="请输入地址ID" />
+        <el-form-item label="标签名称" prop="tagName">
+          <el-input v-model="form.tagName" placeholder="请输入标签名称" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -182,10 +122,10 @@
 </template>
 
 <script>
-import { listOrders, getOrders, delOrders, addOrders, updateOrders } from "@/api/mall/orders";
+import { listCategoryTagsRel, getCategoryTagsRel, delCategoryTagsRel, addCategoryTagsRel, updateCategoryTagsRel } from "@/api/mall/categoryTagsRel";
 
 export default {
-  name: "Orders",
+  name: "CategoryTagsRel",
   data() {
     return {
       // 遮罩层
@@ -200,8 +140,8 @@ export default {
       showSearch: true,
       // 总条数
       total: 0,
-      // 订单信息表格数据
-      ordersList: [],
+      // 分类与标签的关联关系表格数据
+      categoryTagsRelList: [],
       // 弹出层标题
       title: "",
       // 是否显示弹出层
@@ -210,19 +150,19 @@ export default {
       queryParams: {
         pageNum: 1,
         pageSize: 10,
-        orderId: null,
-        goodsId: null,
-        merchantId: null,
-        num: null,
-        userId: null,
-        price: null,
-        addressId: null,
-        status: null
+        categoryName: null,
+        tagName: null
       },
       // 表单参数
       form: {},
       // 表单校验
       rules: {
+        categoryName: [
+          { required: true, message: "分类名称不能为空", trigger: "blur" }
+        ],
+        tagName: [
+          { required: true, message: "标签名称不能为空", trigger: "blur" }
+        ]
       }
     };
   },
@@ -230,11 +170,11 @@ export default {
     this.getList();
   },
   methods: {
-    /** 查询订单信息列表 */
+    /** 查询分类与标签的关联关系列表 */
     getList() {
       this.loading = true;
-      listOrders(this.queryParams).then(response => {
-        this.ordersList = response.rows;
+      listCategoryTagsRel(this.queryParams).then(response => {
+        this.categoryTagsRelList = response.rows;
         this.total = response.total;
         this.loading = false;
       });
@@ -247,15 +187,10 @@ export default {
     // 表单重置
     reset() {
       this.form = {
-        id: null,
-        orderId: null,
-        goodsId: null,
-        merchantId: null,
-        num: null,
-        userId: null,
-        price: null,
-        addressId: null,
-        status: null
+        categoryId: null,
+        categoryName: null,
+        tagId: null,
+        tagName: null
       };
       this.resetForm("form");
     },
@@ -271,7 +206,7 @@ export default {
     },
     // 多选框选中数据
     handleSelectionChange(selection) {
-      this.ids = selection.map(item => item.id)
+      this.ids = selection.map(item => item.categoryId)
       this.single = selection.length!==1
       this.multiple = !selection.length
     },
@@ -279,30 +214,30 @@ export default {
     handleAdd() {
       this.reset();
       this.open = true;
-      this.title = "添加订单信息";
+      this.title = "添加分类与标签的关联关系";
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
       this.reset();
-      const id = row.id || this.ids
-      getOrders(id).then(response => {
+      const categoryId = row.categoryId || this.ids
+      getCategoryTagsRel(categoryId).then(response => {
         this.form = response.data;
         this.open = true;
-        this.title = "修改订单信息";
+        this.title = "修改分类与标签的关联关系";
       });
     },
     /** 提交按钮 */
     submitForm() {
       this.$refs["form"].validate(valid => {
         if (valid) {
-          if (this.form.id != null) {
-            updateOrders(this.form).then(response => {
+          if (this.form.categoryId != null) {
+            updateCategoryTagsRel(this.form).then(response => {
               this.$modal.msgSuccess("修改成功");
               this.open = false;
               this.getList();
             });
           } else {
-            addOrders(this.form).then(response => {
+            addCategoryTagsRel(this.form).then(response => {
               this.$modal.msgSuccess("新增成功");
               this.open = false;
               this.getList();
@@ -313,9 +248,9 @@ export default {
     },
     /** 删除按钮操作 */
     handleDelete(row) {
-      const ids = row.id || this.ids;
-      this.$modal.confirm('是否确认删除订单信息编号为"' + ids + '"的数据项？').then(function() {
-        return delOrders(ids);
+      const categoryIds = row.categoryId || this.ids;
+      this.$modal.confirm('是否确认删除分类与标签的关联关系编号为"' + categoryIds + '"的数据项？').then(function() {
+        return delCategoryTagsRel(categoryIds);
       }).then(() => {
         this.getList();
         this.$modal.msgSuccess("删除成功");
@@ -323,9 +258,9 @@ export default {
     },
     /** 导出按钮操作 */
     handleExport() {
-      this.download('mall/orders/export', {
+      this.download('mall/categoryTagsRel/export', {
         ...this.queryParams
-      }, `orders_${new Date().getTime()}.xlsx`)
+      }, `categoryTagsRel_${new Date().getTime()}.xlsx`)
     }
   }
 };

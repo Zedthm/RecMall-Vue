@@ -9,9 +9,9 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="商品ID" prop="bookId">
+      <el-form-item label="商品ID" prop="goodsId">
         <el-input
-          v-model="queryParams.bookId"
+          v-model="queryParams.goodsId"
           placeholder="请输入商品ID"
           clearable
           @keyup.enter.native="handleQuery"
@@ -87,9 +87,9 @@
 
     <el-table v-loading="loading" :data="cartList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="ID" align="center" prop="id" />
+      <el-table-column label="主键ID" align="center" prop="id" />
       <el-table-column label="用户ID" align="center" prop="userId" />
-      <el-table-column label="商品ID" align="center" prop="bookId" />
+      <el-table-column label="商品ID" align="center" prop="goodsId" />
       <el-table-column label="店铺ID" align="center" prop="merchantId" />
       <el-table-column label="数量" align="center" prop="num" />
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
@@ -126,8 +126,8 @@
         <el-form-item label="用户ID" prop="userId">
           <el-input v-model="form.userId" placeholder="请输入用户ID" />
         </el-form-item>
-        <el-form-item label="商品ID" prop="bookId">
-          <el-input v-model="form.bookId" placeholder="请输入商品ID" />
+        <el-form-item label="商品ID" prop="goodsId">
+          <el-input v-model="form.goodsId" placeholder="请输入商品ID" />
         </el-form-item>
         <el-form-item label="店铺ID" prop="merchantId">
           <el-input v-model="form.merchantId" placeholder="请输入店铺ID" />
@@ -174,7 +174,7 @@ export default {
         pageNum: 1,
         pageSize: 10,
         userId: null,
-        bookId: null,
+        goodsId: null,
         merchantId: null,
         num: null
       },
@@ -208,7 +208,7 @@ export default {
       this.form = {
         id: null,
         userId: null,
-        bookId: null,
+        goodsId: null,
         merchantId: null,
         num: null
       };

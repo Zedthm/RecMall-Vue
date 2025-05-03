@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.recMall.mall.mapper.MallBooksMapper">
+    
+    <resultMap type="MallBooks" id="MallBooksResult">
+        <result property="bookId"    column="book_id"    />
+        <result property="title"    column="title"    />
+        <result property="authors"    column="authors"    />
+        <result property="pubYear"    column="pub_year"    />
+        <result property="bookAvgRating"    column="book_avg_rating"    />
+        <result property="bookRatingStd"    column="book_rating_std"    />
+        <result property="bookRatingCount"    column="book_rating_count"    />
+        <result property="pageCount"    column="page_count"    />
+        <result property="price"    column="price"    />
+        <result property="img"    column="img"    />
+        <result property="description"    column="description"    />
+        <result property="units"    column="units"    />
+        <result property="inventory"    column="inventory"    />
+        <result property="merchant"    column="merchant"    />
+    </resultMap>
+
+    <resultMap id="MallBooksMallBookTagsResult" type="MallBooks" extends="MallBooksResult">
+        <collection property="mallBookTagsList" ofType="MallBookTags" column="book_id" select="selectMallBookTagsList" />
+    </resultMap>
+
+    <resultMap type="MallBookTags" id="MallBookTagsResult">
+        <result property="bookId"    column="book_id"    />
+        <result property="tagId"    column="tag_id"    />
+    </resultMap>
+
+    <sql id="selectMallBooksVo">
+        select book_id, title, authors, pub_year, book_avg_rating, book_rating_std, book_rating_count, page_count, price, img, description, units, inventory, merchant from mall_books
+    </sql>
+
+    <select id="selectMallBooksList" parameterType="MallBooks" resultMap="MallBooksResult">
+        <include refid="selectMallBooksVo"/>
+        <where>  
+            <if test="title != null  and title != ''"> and title = #{title}</if>
+            <if test="authors != null  and authors != ''"> and authors = #{authors}</if>
+            <if test="pubYear != null  and pubYear != ''"> and pub_year = #{pubYear}</if>
+            <if test="bookAvgRating != null "> and book_avg_rating = #{bookAvgRating}</if>
+            <if test="bookRatingStd != null "> and book_rating_std = #{bookRatingStd}</if>
+            <if test="bookRatingCount != null "> and book_rating_count = #{bookRatingCount}</if>
+            <if test="pageCount != null  and pageCount != ''"> and page_count = #{pageCount}</if>
+            <if test="price != null "> and price = #{price}</if>
+            <if test="img != null  and img != ''"> and img = #{img}</if>
+            <if test="description != null  and description != ''"> and description = #{description}</if>
+            <if test="units != null  and units != ''"> and units = #{units}</if>
+            <if test="inventory != null "> and inventory = #{inventory}</if>
+            <if test="merchant != null  and merchant != ''"> and merchant = #{merchant}</if>
+        </where>
+    </select>
+    
+    <select id="selectMallBooksByBookId" parameterType="String" resultMap="MallBooksMallBookTagsResult">
+        select book_id, title, authors, pub_year, book_avg_rating, book_rating_std, book_rating_count, page_count, price, img, description, units, inventory, merchant
+        from mall_books
+        where book_id = #{bookId}
+    </select>
+
+    <select id="selectMallBookTagsList" resultMap="MallBookTagsResult">
+        select book_id, tag_id
+        from mall_book_tags
+        where book_id = #{book_id}
+    </select>
+
+    <insert id="insertMallBooks" parameterType="MallBooks" useGeneratedKeys="true" keyProperty="bookId">
+        insert into mall_books
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="title != null">title,</if>
+            <if test="authors != null">authors,</if>
+            <if test="pubYear != null">pub_year,</if>
+            <if test="bookAvgRating != null">book_avg_rating,</if>
+            <if test="bookRatingStd != null">book_rating_std,</if>
+            <if test="bookRatingCount != null">book_rating_count,</if>
+            <if test="pageCount != null">page_count,</if>
+            <if test="price != null">price,</if>
+            <if test="img != null">img,</if>
+            <if test="description != null">description,</if>
+            <if test="units != null">units,</if>
+            <if test="inventory != null">inventory,</if>
+            <if test="merchant != null">merchant,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="title != null">#{title},</if>
+            <if test="authors != null">#{authors},</if>
+            <if test="pubYear != null">#{pubYear},</if>
+            <if test="bookAvgRating != null">#{bookAvgRating},</if>
+            <if test="bookRatingStd != null">#{bookRatingStd},</if>
+            <if test="bookRatingCount != null">#{bookRatingCount},</if>
+            <if test="pageCount != null">#{pageCount},</if>
+            <if test="price != null">#{price},</if>
+            <if test="img != null">#{img},</if>
+            <if test="description != null">#{description},</if>
+            <if test="units != null">#{units},</if>
+            <if test="inventory != null">#{inventory},</if>
+            <if test="merchant != null">#{merchant},</if>
+         </trim>
+    </insert>
+
+    <update id="updateMallBooks" parameterType="MallBooks">
+        update mall_books
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="title != null">title = #{title},</if>
+            <if test="authors != null">authors = #{authors},</if>
+            <if test="pubYear != null">pub_year = #{pubYear},</if>
+            <if test="bookAvgRating != null">book_avg_rating = #{bookAvgRating},</if>
+            <if test="bookRatingStd != null">book_rating_std = #{bookRatingStd},</if>
+            <if test="bookRatingCount != null">book_rating_count = #{bookRatingCount},</if>
+            <if test="pageCount != null">page_count = #{pageCount},</if>
+            <if test="price != null">price = #{price},</if>
+            <if test="img != null">img = #{img},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="units != null">units = #{units},</if>
+            <if test="inventory != null">inventory = #{inventory},</if>
+            <if test="merchant != null">merchant = #{merchant},</if>
+        </trim>
+        where book_id = #{bookId}
+    </update>
+
+    <delete id="deleteMallBooksByBookId" parameterType="String">
+        delete from mall_books where book_id = #{bookId}
+    </delete>
+
+    <delete id="deleteMallBooksByBookIds" parameterType="String">
+        delete from mall_books where book_id in 
+        <foreach item="bookId" collection="array" open="(" separator="," close=")">
+            #{bookId}
+        </foreach>
+    </delete>
+    
+    <delete id="deleteMallBookTagsByBookIds" parameterType="String">
+        delete from mall_book_tags where book_id in 
+        <foreach item="bookId" collection="array" open="(" separator="," close=")">
+            #{bookId}
+        </foreach>
+    </delete>
+
+    <delete id="deleteMallBookTagsByBookId" parameterType="String">
+        delete from mall_book_tags where book_id = #{bookId}
+    </delete>
+
+    <insert id="batchMallBookTags">
+        insert into mall_book_tags( book_id, tag_id) values
+        <foreach item="item" index="index" collection="list" separator=",">
+            ( #{item.bookId}, #{item.tagId})
+        </foreach>
+    </insert>
+</mapper>

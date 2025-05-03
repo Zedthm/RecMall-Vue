@@ -1,6 +1,6 @@
 import request from '@/utils/request'
 
-// 查询书籍订单列表
+// 查询订单信息列表
 export function listOrders(query) {
   return request({
     url: '/mall/orders/list',
@@ -9,7 +9,7 @@ export function listOrders(query) {
   })
 }
 
-// 查询书籍订单详细
+// 查询订单信息详细
 export function getOrders(id) {
   return request({
     url: '/mall/orders/' + id,
@@ -17,7 +17,7 @@ export function getOrders(id) {
   })
 }
 
-// 新增书籍订单
+// 新增订单信息
 export function addOrders(data) {
   return request({
     url: '/mall/orders',
@@ -26,7 +26,7 @@ export function addOrders(data) {
   })
 }
 
-// 修改书籍订单
+// 修改订单信息
 export function updateOrders(data) {
   return request({
     url: '/mall/orders',
@@ -35,7 +35,7 @@ export function updateOrders(data) {
   })
 }
 
-// 删除书籍订单
+// 删除订单信息
 export function delOrders(id) {
   return request({
     url: '/mall/orders/' + id,

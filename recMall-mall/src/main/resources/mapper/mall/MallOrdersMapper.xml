@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.recMall.mall.mapper.MallOrdersMapper">
+    
+    <resultMap type="MallOrders" id="MallOrdersResult">
+        <result property="id"    column="id"    />
+        <result property="orderId"    column="order_id"    />
+        <result property="goodsId"    column="goods_id"    />
+        <result property="merchantId"    column="merchant_id"    />
+        <result property="num"    column="num"    />
+        <result property="userId"    column="user_id"    />
+        <result property="price"    column="price"    />
+        <result property="addressId"    column="address_id"    />
+        <result property="status"    column="status"    />
+    </resultMap>
+
+    <sql id="selectMallOrdersVo">
+        select id, order_id, goods_id, merchant_id, num, user_id, price, address_id, status from mall_orders
+    </sql>
+
+    <select id="selectMallOrdersList" parameterType="MallOrders" resultMap="MallOrdersResult">
+        <include refid="selectMallOrdersVo"/>
+        <where>  
+            <if test="orderId != null  and orderId != ''"> and order_id = #{orderId}</if>
+            <if test="goodsId != null "> and goods_id = #{goodsId}</if>
+            <if test="merchantId != null "> and merchant_id = #{merchantId}</if>
+            <if test="num != null "> and num = #{num}</if>
+            <if test="userId != null "> and user_id = #{userId}</if>
+            <if test="price != null "> and price = #{price}</if>
+            <if test="addressId != null "> and address_id = #{addressId}</if>
+            <if test="status != null  and status != ''"> and status = #{status}</if>
+        </where>
+    </select>
+    
+    <select id="selectMallOrdersById" parameterType="Long" resultMap="MallOrdersResult">
+        <include refid="selectMallOrdersVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertMallOrders" parameterType="MallOrders" useGeneratedKeys="true" keyProperty="id">
+        insert into mall_orders
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="orderId != null">order_id,</if>
+            <if test="goodsId != null">goods_id,</if>
+            <if test="merchantId != null">merchant_id,</if>
+            <if test="num != null">num,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="price != null">price,</if>
+            <if test="addressId != null">address_id,</if>
+            <if test="status != null">status,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="orderId != null">#{orderId},</if>
+            <if test="goodsId != null">#{goodsId},</if>
+            <if test="merchantId != null">#{merchantId},</if>
+            <if test="num != null">#{num},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="price != null">#{price},</if>
+            <if test="addressId != null">#{addressId},</if>
+            <if test="status != null">#{status},</if>
+         </trim>
+    </insert>
+
+    <update id="updateMallOrders" parameterType="MallOrders">
+        update mall_orders
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="orderId != null">order_id = #{orderId},</if>
+            <if test="goodsId != null">goods_id = #{goodsId},</if>
+            <if test="merchantId != null">merchant_id = #{merchantId},</if>
+            <if test="num != null">num = #{num},</if>
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="price != null">price = #{price},</if>
+            <if test="addressId != null">address_id = #{addressId},</if>
+            <if test="status != null">status = #{status},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteMallOrdersById" parameterType="Long">
+        delete from mall_orders where id = #{id}
+    </delete>
+
+    <delete id="deleteMallOrdersByIds" parameterType="String">
+        delete from mall_orders where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

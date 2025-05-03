@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.recMall.mall.mapper.MallCategoryTagsMapper">
+    
+    <resultMap type="MallCategoryTags" id="MallCategoryTagsResult">
+        <result property="categoryId"    column="category_id"    />
+        <result property="categoryName"    column="category_name"    />
+        <result property="tagId"    column="tag_id"    />
+        <result property="tagName"    column="tag_name"    />
+    </resultMap>
+
+    <sql id="selectMallCategoryTagsVo">
+        select category_id, category_name, tag_id, tag_name from mall_category_tags
+    </sql>
+
+    <select id="selectMallCategoryTagsList" parameterType="MallCategoryTags" resultMap="MallCategoryTagsResult">
+        <include refid="selectMallCategoryTagsVo"/>
+        <where>  
+            <if test="categoryName != null  and categoryName != ''"> and category_name like concat('%', #{categoryName}, '%')</if>
+            <if test="tagName != null  and tagName != ''"> and tag_name like concat('%', #{tagName}, '%')</if>
+        </where>
+    </select>
+    
+    <select id="selectMallCategoryTagsByCategoryId" parameterType="String" resultMap="MallCategoryTagsResult">
+        <include refid="selectMallCategoryTagsVo"/>
+        where category_id = #{categoryId}
+    </select>
+
+    <insert id="insertMallCategoryTags" parameterType="MallCategoryTags">
+        insert into mall_category_tags
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="categoryId != null">category_id,</if>
+            <if test="categoryName != null and categoryName != ''">category_name,</if>
+            <if test="tagId != null">tag_id,</if>
+            <if test="tagName != null and tagName != ''">tag_name,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="categoryId != null">#{categoryId},</if>
+            <if test="categoryName != null and categoryName != ''">#{categoryName},</if>
+            <if test="tagId != null">#{tagId},</if>
+            <if test="tagName != null and tagName != ''">#{tagName},</if>
+         </trim>
+    </insert>
+
+    <update id="updateMallCategoryTags" parameterType="MallCategoryTags">
+        update mall_category_tags
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="categoryName != null and categoryName != ''">category_name = #{categoryName},</if>
+            <if test="tagId != null">tag_id = #{tagId},</if>
+            <if test="tagName != null and tagName != ''">tag_name = #{tagName},</if>
+        </trim>
+        where category_id = #{categoryId}
+    </update>
+
+    <delete id="deleteMallCategoryTagsByCategoryId" parameterType="String">
+        delete from mall_category_tags where category_id = #{categoryId}
+    </delete>
+
+    <delete id="deleteMallCategoryTagsByCategoryIds" parameterType="String">
+        delete from mall_category_tags where category_id in 
+        <foreach item="categoryId" collection="array" open="(" separator="," close=")">
+            #{categoryId}
+        </foreach>
+    </delete>
+</mapper>

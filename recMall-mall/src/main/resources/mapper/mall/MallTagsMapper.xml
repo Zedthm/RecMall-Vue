@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.recMall.mall.mapper.MallTagsMapper">
+    
+    <resultMap type="MallTags" id="MallTagsResult">
+        <result property="tagId"    column="tag_id"    />
+        <result property="tagName"    column="tag_name"    />
+    </resultMap>
+
+    <sql id="selectMallTagsVo">
+        select tag_id, tag_name from mall_tags
+    </sql>
+
+    <select id="selectMallTagsList" parameterType="MallTags" resultMap="MallTagsResult">
+        <include refid="selectMallTagsVo"/>
+        <where>  
+            <if test="tagName != null  and tagName != ''"> and tag_name like concat('%', #{tagName}, '%')</if>
+        </where>
+    </select>
+    
+    <select id="selectMallTagsByTagId" parameterType="String" resultMap="MallTagsResult">
+        <include refid="selectMallTagsVo"/>
+        where tag_id = #{tagId}
+    </select>
+
+    <insert id="insertMallTags" parameterType="MallTags" useGeneratedKeys="true" keyProperty="tagId">
+        insert into mall_tags
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="tagName != null and tagName != ''">tag_name,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="tagName != null and tagName != ''">#{tagName},</if>
+         </trim>
+    </insert>
+
+    <update id="updateMallTags" parameterType="MallTags">
+        update mall_tags
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="tagName != null and tagName != ''">tag_name = #{tagName},</if>
+        </trim>
+        where tag_id = #{tagId}
+    </update>
+
+    <delete id="deleteMallTagsByTagId" parameterType="String">
+        delete from mall_tags where tag_id = #{tagId}
+    </delete>
+
+    <delete id="deleteMallTagsByTagIds" parameterType="String">
+        delete from mall_tags where tag_id in 
+        <foreach item="tagId" collection="array" open="(" separator="," close=")">
+            #{tagId}
+        </foreach>
+    </delete>
+</mapper>

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.recMall.mall.mapper.MallCategoriesMapper">
+    
+    <resultMap type="MallCategories" id="MallCategoriesResult">
+        <result property="categoryId"    column="category_id"    />
+        <result property="categoryName"    column="category_name"    />
+    </resultMap>
+
+    <sql id="selectMallCategoriesVo">
+        select category_id, category_name from mall_categories
+    </sql>
+
+    <select id="selectMallCategoriesList" parameterType="MallCategories" resultMap="MallCategoriesResult">
+        <include refid="selectMallCategoriesVo"/>
+        <where>  
+            <if test="categoryName != null  and categoryName != ''"> and category_name like concat('%', #{categoryName}, '%')</if>
+        </where>
+    </select>
+    
+    <select id="selectMallCategoriesByCategoryId" parameterType="String" resultMap="MallCategoriesResult">
+        <include refid="selectMallCategoriesVo"/>
+        where category_id = #{categoryId}
+    </select>
+
+    <insert id="insertMallCategories" parameterType="MallCategories" useGeneratedKeys="true" keyProperty="categoryId">
+        insert into mall_categories
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="categoryName != null and categoryName != ''">category_name,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="categoryName != null and categoryName != ''">#{categoryName},</if>
+         </trim>
+    </insert>
+
+    <update id="updateMallCategories" parameterType="MallCategories">
+        update mall_categories
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="categoryName != null and categoryName != ''">category_name = #{categoryName},</if>
+        </trim>
+        where category_id = #{categoryId}
+    </update>
+
+    <delete id="deleteMallCategoriesByCategoryId" parameterType="String">
+        delete from mall_categories where category_id = #{categoryId}
+    </delete>
+
+    <delete id="deleteMallCategoriesByCategoryIds" parameterType="String">
+        delete from mall_categories where category_id in 
+        <foreach item="categoryId" collection="array" open="(" separator="," close=")">
+            #{categoryId}
+        </foreach>
+    </delete>
+</mapper>

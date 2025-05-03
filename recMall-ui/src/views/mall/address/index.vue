@@ -1,6 +1,38 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px">
+      <el-form-item label="用户ID" prop="userId">
+        <el-input
+          v-model="queryParams.userId"
+          placeholder="请输入用户ID"
+          clearable
+          @keyup.enter="handleQuery"
+        />
+      </el-form-item>
+      <el-form-item label="收货人" prop="username">
+        <el-input
+          v-model="queryParams.username"
+          placeholder="请输入收货人"
+          clearable
+          @keyup.enter="handleQuery"
+        />
+      </el-form-item>
+      <el-form-item label="收货地址" prop="userAddress">
+        <el-input
+          v-model="queryParams.userAddress"
+          placeholder="请输入收货地址"
+          clearable
+          @keyup.enter="handleQuery"
+        />
+      </el-form-item>
+      <el-form-item label="联系电话" prop="phone">
+        <el-input
+          v-model="queryParams.phone"
+          placeholder="请输入联系电话"
+          clearable
+          @keyup.enter="handleQuery"
+        />
+      </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
         <el-button icon="Refresh" @click="resetQuery">重置</el-button>
@@ -14,7 +46,7 @@
           plain
           icon="Plus"
           @click="handleAdd"
-          v-hasPermi="['mall:bookTagsRel:add']"
+          v-hasPermi="['mall:address:add']"
         >新增</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -24,7 +56,7 @@
           icon="Edit"
           :disabled="single"
           @click="handleUpdate"
-          v-hasPermi="['mall:bookTagsRel:edit']"
+          v-hasPermi="['mall:address:edit']"
         >修改</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -34,7 +66,7 @@
           icon="Delete"
           :disabled="multiple"
           @click="handleDelete"
-          v-hasPermi="['mall:bookTagsRel:remove']"
+          v-hasPermi="['mall:address:remove']"
         >删除</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -43,20 +75,23 @@
           plain
           icon="Download"
           @click="handleExport"
-          v-hasPermi="['mall:bookTagsRel:export']"
+          v-hasPermi="['mall:address:export']"
         >导出</el-button>
       </el-col>
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
-    <el-table v-loading="loading" :data="bookTagsRelList" @selection-change="handleSelectionChange">
+    <el-table v-loading="loading" :data="addressList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="书籍ID" align="center" prop="bookId" />
-      <el-table-column label="标签ID" align="center" prop="tagId" />
+      <el-table-column label="主键ID" align="center" prop="id" />
+      <el-table-column label="用户ID" align="center" prop="userId" />
+      <el-table-column label="收货人" align="center" prop="username" />
+      <el-table-column label="收货地址" align="center" prop="userAddress" />
+      <el-table-column label="联系电话" align="center" prop="phone" />
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
-          <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)" v-hasPermi="['mall:bookTagsRel:edit']">修改</el-button>
-          <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)" v-hasPermi="['mall:bookTagsRel:remove']">删除</el-button>
+          <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)" v-hasPermi="['mall:address:edit']">修改</el-button>
+          <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)" v-hasPermi="['mall:address:remove']">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -69,9 +104,21 @@
       @pagination="getList"
     />
 
-    <!-- 添加或修改书籍与标签的关联关系对话框 -->
+    <!-- 添加或修改地址信息对话框 -->
     <el-dialog :title="title" v-model="open" width="500px" append-to-body>
-      <el-form ref="bookTagsRelRef" :model="form" :rules="rules" label-width="80px">
+      <el-form ref="addressRef" :model="form" :rules="rules" label-width="80px">
+        <el-form-item label="用户ID" prop="userId">
+          <el-input v-model="form.userId" placeholder="请输入用户ID" />
+        </el-form-item>
+        <el-form-item label="收货人" prop="username">
+          <el-input v-model="form.username" placeholder="请输入收货人" />
+        </el-form-item>
+        <el-form-item label="收货地址" prop="userAddress">
+          <el-input v-model="form.userAddress" placeholder="请输入收货地址" />
+        </el-form-item>
+        <el-form-item label="联系电话" prop="phone">
+          <el-input v-model="form.phone" placeholder="请输入联系电话" />
+        </el-form-item>
       </el-form>
       <template #footer>
         <div class="dialog-footer">
@@ -83,12 +130,12 @@
   </div>
 </template>
 
-<script setup name="BookTagsRel">
-import { listBookTagsRel, getBookTagsRel, delBookTagsRel, addBookTagsRel, updateBookTagsRel } from "@/api/mall/bookTagsRel";
+<script setup name="Address">
+import { listAddress, getAddress, delAddress, addAddress, updateAddress } from "@/api/mall/address";
 
 const { proxy } = getCurrentInstance();
 
-const bookTagsRelList = ref([]);
+const addressList = ref([]);
 const open = ref(false);
 const loading = ref(true);
 const showSearch = ref(true);
@@ -103,8 +150,10 @@ const data = reactive({
   queryParams: {
     pageNum: 1,
     pageSize: 10,
-    bookId: null,
-    tagId: null
+    userId: null,
+    username: null,
+    userAddress: null,
+    phone: null
   },
   rules: {
   }
@@ -112,11 +161,11 @@ const data = reactive({
 
 const { queryParams, form, rules } = toRefs(data);
 
-/** 查询书籍与标签的关联关系列表 */
+/** 查询地址信息列表 */
 function getList() {
   loading.value = true;
-  listBookTagsRel(queryParams.value).then(response => {
-    bookTagsRelList.value = response.rows;
+  listAddress(queryParams.value).then(response => {
+    addressList.value = response.rows;
     total.value = response.total;
     loading.value = false;
   });
@@ -131,10 +180,13 @@ function cancel() {
 // 表单重置
 function reset() {
   form.value = {
-    bookId: null,
-    tagId: null
+    id: null,
+    userId: null,
+    username: null,
+    userAddress: null,
+    phone: null
   };
-  proxy.resetForm("bookTagsRelRef");
+  proxy.resetForm("addressRef");
 }
 
 /** 搜索按钮操作 */
@@ -151,7 +203,7 @@ function resetQuery() {
 
 // 多选框选中数据
 function handleSelectionChange(selection) {
-  ids.value = selection.map(item => item.bookId);
+  ids.value = selection.map(item => item.id);
   single.value = selection.length != 1;
   multiple.value = !selection.length;
 }
@@ -160,32 +212,32 @@ function handleSelectionChange(selection) {
 function handleAdd() {
   reset();
   open.value = true;
-  title.value = "添加书籍与标签的关联关系";
+  title.value = "添加地址信息";
 }
 
 /** 修改按钮操作 */
 function handleUpdate(row) {
   reset();
-  const _bookId = row.bookId || ids.value
-  getBookTagsRel(_bookId).then(response => {
+  const _id = row.id || ids.value
+  getAddress(_id).then(response => {
     form.value = response.data;
     open.value = true;
-    title.value = "修改书籍与标签的关联关系";
+    title.value = "修改地址信息";
   });
 }
 
 /** 提交按钮 */
 function submitForm() {
-  proxy.$refs["bookTagsRelRef"].validate(valid => {
+  proxy.$refs["addressRef"].validate(valid => {
     if (valid) {
-      if (form.value.bookId != null) {
-        updateBookTagsRel(form.value).then(response => {
+      if (form.value.id != null) {
+        updateAddress(form.value).then(response => {
           proxy.$modal.msgSuccess("修改成功");
           open.value = false;
           getList();
         });
       } else {
-        addBookTagsRel(form.value).then(response => {
+        addAddress(form.value).then(response => {
           proxy.$modal.msgSuccess("新增成功");
           open.value = false;
           getList();
@@ -197,9 +249,9 @@ function submitForm() {
 
 /** 删除按钮操作 */
 function handleDelete(row) {
-  const _bookIds = row.bookId || ids.value;
-  proxy.$modal.confirm('是否确认删除书籍与标签的关联关系编号为"' + _bookIds + '"的数据项？').then(function() {
-    return delBookTagsRel(_bookIds);
+  const _ids = row.id || ids.value;
+  proxy.$modal.confirm('是否确认删除地址信息编号为"' + _ids + '"的数据项？').then(function() {
+    return delAddress(_ids);
   }).then(() => {
     getList();
     proxy.$modal.msgSuccess("删除成功");
@@ -208,9 +260,9 @@ function handleDelete(row) {
 
 /** 导出按钮操作 */
 function handleExport() {
-  proxy.download('mall/bookTagsRel/export', {
+  proxy.download('mall/address/export', {
     ...queryParams.value
-  }, `bookTagsRel_${new Date().getTime()}.xlsx`)
+  }, `address_${new Date().getTime()}.xlsx`)
 }
 
 getList();

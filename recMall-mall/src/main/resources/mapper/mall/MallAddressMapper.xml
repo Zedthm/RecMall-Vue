@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.recMall.mall.mapper.MallAddressMapper">
+    
+    <resultMap type="MallAddress" id="MallAddressResult">
+        <result property="id"    column="id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="username"    column="username"    />
+        <result property="userAddress"    column="user_address"    />
+        <result property="phone"    column="phone"    />
+    </resultMap>
+
+    <sql id="selectMallAddressVo">
+        select id, user_id, username, user_address, phone from mall_address
+    </sql>
+
+    <select id="selectMallAddressList" parameterType="MallAddress" resultMap="MallAddressResult">
+        <include refid="selectMallAddressVo"/>
+        <where>  
+            <if test="userId != null "> and user_id = #{userId}</if>
+            <if test="username != null  and username != ''"> and username like concat('%', #{username}, '%')</if>
+            <if test="userAddress != null  and userAddress != ''"> and user_address = #{userAddress}</if>
+            <if test="phone != null  and phone != ''"> and phone = #{phone}</if>
+        </where>
+    </select>
+    
+    <select id="selectMallAddressById" parameterType="Long" resultMap="MallAddressResult">
+        <include refid="selectMallAddressVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertMallAddress" parameterType="MallAddress" useGeneratedKeys="true" keyProperty="id">
+        insert into mall_address
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId != null">user_id,</if>
+            <if test="username != null">username,</if>
+            <if test="userAddress != null">user_address,</if>
+            <if test="phone != null">phone,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userId != null">#{userId},</if>
+            <if test="username != null">#{username},</if>
+            <if test="userAddress != null">#{userAddress},</if>
+            <if test="phone != null">#{phone},</if>
+         </trim>
+    </insert>
+
+    <update id="updateMallAddress" parameterType="MallAddress">
+        update mall_address
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="username != null">username = #{username},</if>
+            <if test="userAddress != null">user_address = #{userAddress},</if>
+            <if test="phone != null">phone = #{phone},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteMallAddressById" parameterType="Long">
+        delete from mall_address where id = #{id}
+    </delete>
+
+    <delete id="deleteMallAddressByIds" parameterType="String">
+        delete from mall_address where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>
