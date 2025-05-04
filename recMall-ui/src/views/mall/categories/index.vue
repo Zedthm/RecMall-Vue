@@ -23,7 +23,7 @@
           icon="el-icon-plus"
           size="mini"
           @click="handleAdd"
-          v-hasPermi="['mall:categories:add']"
+          v-hasPermi="['system:categories:add']"
         >新增</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -34,7 +34,7 @@
           size="mini"
           :disabled="single"
           @click="handleUpdate"
-          v-hasPermi="['mall:categories:edit']"
+          v-hasPermi="['system:categories:edit']"
         >修改</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -45,7 +45,7 @@
           size="mini"
           :disabled="multiple"
           @click="handleDelete"
-          v-hasPermi="['mall:categories:remove']"
+          v-hasPermi="['system:categories:remove']"
         >删除</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -55,7 +55,7 @@
           icon="el-icon-download"
           size="mini"
           @click="handleExport"
-          v-hasPermi="['mall:categories:export']"
+          v-hasPermi="['system:categories:export']"
         >导出</el-button>
       </el-col>
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
@@ -65,6 +65,11 @@
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="分类唯一标识" align="center" prop="categoryId" />
       <el-table-column label="分类名称" align="center" prop="categoryName" />
+      <el-table-column label="分类图片URL" align="center" prop="img" width="100">
+        <template slot-scope="scope">
+          <image-preview :src="scope.row.img" :width="50" :height="50"/>
+        </template>
+      </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
@@ -72,19 +77,19 @@
             type="text"
             icon="el-icon-edit"
             @click="handleUpdate(scope.row)"
-            v-hasPermi="['mall:categories:edit']"
+            v-hasPermi="['system:categories:edit']"
           >修改</el-button>
           <el-button
             size="mini"
             type="text"
             icon="el-icon-delete"
             @click="handleDelete(scope.row)"
-            v-hasPermi="['mall:categories:remove']"
+            v-hasPermi="['system:categories:remove']"
           >删除</el-button>
         </template>
       </el-table-column>
     </el-table>
-    
+
     <pagination
       v-show="total>0"
       :total="total"
@@ -98,6 +103,9 @@
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
         <el-form-item label="分类名称" prop="categoryName">
           <el-input v-model="form.categoryName" placeholder="请输入分类名称" />
+        </el-form-item>
+        <el-form-item label="分类图片URL" prop="img">
+          <image-upload v-model="form.img"/>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -137,7 +145,8 @@ export default {
       queryParams: {
         pageNum: 1,
         pageSize: 10,
-        categoryName: null
+        categoryName: null,
+        img: null
       },
       // 表单参数
       form: {},
@@ -145,7 +154,7 @@ export default {
       rules: {
         categoryName: [
           { required: true, message: "分类名称不能为空", trigger: "blur" }
-        ]
+        ],
       }
     };
   },
@@ -171,7 +180,8 @@ export default {
     reset() {
       this.form = {
         categoryId: null,
-        categoryName: null
+        categoryName: null,
+        img: null
       };
       this.resetForm("form");
     },
@@ -239,7 +249,7 @@ export default {
     },
     /** 导出按钮操作 */
     handleExport() {
-      this.download('mall/categories/export', {
+      this.download('system/categories/export', {
         ...this.queryParams
       }, `categories_${new Date().getTime()}.xlsx`)
     }

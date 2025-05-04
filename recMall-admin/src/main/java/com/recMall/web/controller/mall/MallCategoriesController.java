@@ -2,6 +2,8 @@ package com.recMall.web.controller.mall;
 
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
+
+import com.recMall.mall.service.IMallCategoriesService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,10 +27,10 @@ import com.recMall.common.core.page.TableDataInfo;
  * 书籍分类目录Controller
  * 
  * @author recMall
- * @date 2025-05-03
+ * @date 2025-05-04
  */
 @RestController
-@RequestMapping("/mall/categories")
+@RequestMapping("/system/categories")
 public class MallCategoriesController extends BaseController
 {
     @Autowired
@@ -37,7 +39,7 @@ public class MallCategoriesController extends BaseController
     /**
      * 查询书籍分类目录列表
      */
-    @PreAuthorize("@ss.hasPermi('mall:categories:list')")
+    @PreAuthorize("@ss.hasPermi('system:categories:list')")
     @GetMapping("/list")
     public TableDataInfo list(MallCategories mallCategories)
     {
@@ -49,7 +51,7 @@ public class MallCategoriesController extends BaseController
     /**
      * 导出书籍分类目录列表
      */
-    @PreAuthorize("@ss.hasPermi('mall:categories:export')")
+    @PreAuthorize("@ss.hasPermi('system:categories:export')")
     @Log(title = "书籍分类目录", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
     public void export(HttpServletResponse response, MallCategories mallCategories)
@@ -62,7 +64,7 @@ public class MallCategoriesController extends BaseController
     /**
      * 获取书籍分类目录详细信息
      */
-    @PreAuthorize("@ss.hasPermi('mall:categories:query')")
+    @PreAuthorize("@ss.hasPermi('system:categories:query')")
     @GetMapping(value = "/{categoryId}")
     public AjaxResult getInfo(@PathVariable("categoryId") String categoryId)
     {
@@ -72,7 +74,7 @@ public class MallCategoriesController extends BaseController
     /**
      * 新增书籍分类目录
      */
-    @PreAuthorize("@ss.hasPermi('mall:categories:add')")
+    @PreAuthorize("@ss.hasPermi('system:categories:add')")
     @Log(title = "书籍分类目录", businessType = BusinessType.INSERT)
     @PostMapping
     public AjaxResult add(@RequestBody MallCategories mallCategories)
@@ -83,7 +85,7 @@ public class MallCategoriesController extends BaseController
     /**
      * 修改书籍分类目录
      */
-    @PreAuthorize("@ss.hasPermi('mall:categories:edit')")
+    @PreAuthorize("@ss.hasPermi('system:categories:edit')")
     @Log(title = "书籍分类目录", businessType = BusinessType.UPDATE)
     @PutMapping
     public AjaxResult edit(@RequestBody MallCategories mallCategories)
@@ -94,7 +96,7 @@ public class MallCategoriesController extends BaseController
     /**
      * 删除书籍分类目录
      */
-    @PreAuthorize("@ss.hasPermi('mall:categories:remove')")
+    @PreAuthorize("@ss.hasPermi('system:categories:remove')")
     @Log(title = "书籍分类目录", businessType = BusinessType.DELETE)
 	@DeleteMapping("/{categoryIds}")
     public AjaxResult remove(@PathVariable String[] categoryIds)

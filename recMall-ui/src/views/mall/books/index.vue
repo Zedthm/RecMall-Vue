@@ -49,6 +49,14 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
+      <el-form-item label="页数" prop="pageCount">
+        <el-input
+          v-model="queryParams.pageCount"
+          placeholder="请输入页数"
+          clearable
+          @keyup.enter.native="handleQuery"
+        />
+      </el-form-item>
       <el-form-item label="定价" prop="price">
         <el-input
           v-model="queryParams.price"
@@ -198,14 +206,17 @@
         <el-form-item label="评分人数" prop="bookRatingCount">
           <el-input v-model="form.bookRatingCount" placeholder="请输入评分人数" />
         </el-form-item>
+        <el-form-item label="页数" prop="pageCount">
+          <el-input v-model="form.pageCount" placeholder="请输入页数" />
+        </el-form-item>
         <el-form-item label="定价" prop="price">
           <el-input v-model="form.price" placeholder="请输入定价" />
         </el-form-item>
-        <el-form-item label="封面图片URL" prop="img">
-          <el-input v-model="form.img" type="textarea" placeholder="请输入内容" />
+        <el-form-item label="封面图片URL">
+          <editor v-model="form.img" :min-height="192"/>
         </el-form-item>
-        <el-form-item label="详细描述" prop="description">
-          <el-input v-model="form.description" type="textarea" placeholder="请输入内容" />
+        <el-form-item label="详细描述">
+          <editor v-model="form.description" :min-height="192"/>
         </el-form-item>
         <el-form-item label="销售单位" prop="units">
           <el-input v-model="form.units" placeholder="请输入销售单位" />
@@ -289,6 +300,18 @@ export default {
       form: {},
       // 表单校验
       rules: {
+        title: [
+          { required: true, message: "书籍标题不能为空", trigger: "blur" }
+        ],
+        price: [
+          { required: true, message: "定价不能为空", trigger: "blur" }
+        ],
+        units: [
+          { required: true, message: "销售单位不能为空", trigger: "blur" }
+        ],
+        inventory: [
+          { required: true, message: "当前库存量不能为空", trigger: "blur" }
+        ],
       }
     };
   },

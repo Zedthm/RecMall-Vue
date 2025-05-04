@@ -9,7 +9,7 @@ import com.recMall.common.core.domain.BaseEntity;
  * 书籍分类目录对象 mall_categories
  * 
  * @author recMall
- * @date 2025-05-03
+ * @date 2025-05-04
  */
 public class MallCategories extends BaseEntity
 {
@@ -21,6 +21,10 @@ public class MallCategories extends BaseEntity
     /** 分类名称 */
     @Excel(name = "分类名称")
     private String categoryName;
+
+    /** 分类图片URL */
+    @Excel(name = "分类图片URL")
+    private String img;
 
     public void setCategoryId(String categoryId) 
     {
@@ -42,11 +46,22 @@ public class MallCategories extends BaseEntity
         return categoryName;
     }
 
+    public void setImg(String img) 
+    {
+        this.img = img;
+    }
+
+    public String getImg() 
+    {
+        return img;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
             .append("categoryId", getCategoryId())
             .append("categoryName", getCategoryName())
+            .append("img", getImg())
             .toString();
     }
 }

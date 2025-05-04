@@ -7,16 +7,18 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <resultMap type="MallCategories" id="MallCategoriesResult">
         <result property="categoryId"    column="category_id"    />
         <result property="categoryName"    column="category_name"    />
+        <result property="img"    column="img"    />
     </resultMap>
 
     <sql id="selectMallCategoriesVo">
-        select category_id, category_name from mall_categories
+        select category_id, category_name, img from mall_categories
     </sql>
 
     <select id="selectMallCategoriesList" parameterType="MallCategories" resultMap="MallCategoriesResult">
         <include refid="selectMallCategoriesVo"/>
         <where>  
             <if test="categoryName != null  and categoryName != ''"> and category_name like concat('%', #{categoryName}, '%')</if>
+            <if test="img != null  and img != ''"> and img = #{img}</if>
         </where>
     </select>
     
@@ -29,9 +31,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         insert into mall_categories
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="categoryName != null and categoryName != ''">category_name,</if>
+            <if test="img != null">img,</if>
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="categoryName != null and categoryName != ''">#{categoryName},</if>
+            <if test="img != null">#{img},</if>
          </trim>
     </insert>
 
@@ -39,6 +43,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         update mall_categories
         <trim prefix="SET" suffixOverrides=",">
             <if test="categoryName != null and categoryName != ''">category_name = #{categoryName},</if>
+            <if test="img != null">img = #{img},</if>
         </trim>
         where category_id = #{categoryId}
     </update>

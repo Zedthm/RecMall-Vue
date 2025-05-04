@@ -7,7 +7,7 @@ import com.recMall.mall.domain.MallCategories;
  * 书籍分类目录Mapper接口
  * 
  * @author recMall
- * @date 2025-05-03
+ * @date 2025-05-04
  */
 public interface MallCategoriesMapper 
 {
