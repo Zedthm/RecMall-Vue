@@ -25,12 +25,20 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="收藏时间" prop="time">
+      <el-form-item label="评分" prop="scores">
+        <el-input
+          v-model="queryParams.scores"
+          placeholder="请输入评分"
+          clearable
+          @keyup.enter.native="handleQuery"
+        />
+      </el-form-item>
+      <el-form-item label="评论时间" prop="time">
         <el-date-picker clearable
           v-model="queryParams.time"
           type="date"
           value-format="yyyy-MM-dd"
-          placeholder="请选择收藏时间">
+          placeholder="请选择评论时间">
         </el-date-picker>
       </el-form-item>
       <el-form-item>
@@ -47,7 +55,7 @@
           icon="el-icon-plus"
           size="mini"
           @click="handleAdd"
-          v-hasPermi="['mall:collect:add']"
+          v-hasPermi="['mall:comment:add']"
         >新增</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -58,7 +66,7 @@
           size="mini"
           :disabled="single"
           @click="handleUpdate"
-          v-hasPermi="['mall:collect:edit']"
+          v-hasPermi="['mall:comment:edit']"
         >修改</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -69,7 +77,7 @@
           size="mini"
           :disabled="multiple"
           @click="handleDelete"
-          v-hasPermi="['mall:collect:remove']"
+          v-hasPermi="['mall:comment:remove']"
         >删除</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -79,19 +87,21 @@
           icon="el-icon-download"
           size="mini"
           @click="handleExport"
-          v-hasPermi="['mall:collect:export']"
+          v-hasPermi="['mall:comment:export']"
         >导出</el-button>
       </el-col>
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
-    <el-table v-loading="loading" :data="collectList" @selection-change="handleSelectionChange">
+    <el-table v-loading="loading" :data="commentList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="商品ID" align="center" prop="id" />
+      <el-table-column label="ID" align="center" prop="id" />
       <el-table-column label="用户ID" align="center" prop="userId" />
       <el-table-column label="商品ID" align="center" prop="goodsId" />
       <el-table-column label="店铺ID" align="center" prop="merchantId" />
-      <el-table-column label="收藏时间" align="center" prop="time" width="180">
+      <el-table-column label="评论内容" align="center" prop="content" />
+      <el-table-column label="评分" align="center" prop="scores" />
+      <el-table-column label="评论时间" align="center" prop="time" width="180">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.time, '{y}-{m}-{d}') }}</span>
         </template>
@@ -103,14 +113,14 @@
             type="text"
             icon="el-icon-edit"
             @click="handleUpdate(scope.row)"
-            v-hasPermi="['mall:collect:edit']"
+            v-hasPermi="['mall:comment:edit']"
           >修改</el-button>
           <el-button
             size="mini"
             type="text"
             icon="el-icon-delete"
             @click="handleDelete(scope.row)"
-            v-hasPermi="['mall:collect:remove']"
+            v-hasPermi="['mall:comment:remove']"
           >删除</el-button>
         </template>
       </el-table-column>
@@ -124,7 +134,7 @@
       @pagination="getList"
     />
 
-    <!-- 添加或修改收藏信息对话框 -->
+    <!-- 添加或修改评论信息对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
         <el-form-item label="用户ID" prop="userId">
@@ -136,12 +146,18 @@
         <el-form-item label="店铺ID" prop="merchantId">
           <el-input v-model="form.merchantId" placeholder="请输入店铺ID" />
         </el-form-item>
-        <el-form-item label="收藏时间" prop="time">
+        <el-form-item label="评论内容">
+          <editor v-model="form.content" :min-height="192"/>
+        </el-form-item>
+        <el-form-item label="评分" prop="scores">
+          <el-input v-model="form.scores" placeholder="请输入评分" />
+        </el-form-item>
+        <el-form-item label="评论时间" prop="time">
           <el-date-picker clearable
             v-model="form.time"
             type="date"
             value-format="yyyy-MM-dd"
-            placeholder="请选择收藏时间">
+            placeholder="请选择评论时间">
           </el-date-picker>
         </el-form-item>
       </el-form>
@@ -154,10 +170,10 @@
 </template>
 
 <script>
-import { listCollect, getCollect, delCollect, addCollect, updateCollect } from "@/api/mall/collect";
+import { listComment, getComment, delComment, addComment, updateComment } from "@/api/mall/comment";
 
 export default {
-  name: "Collect",
+  name: "Comment",
   data() {
     return {
       // 遮罩层
@@ -172,8 +188,8 @@ export default {
       showSearch: true,
       // 总条数
       total: 0,
-      // 收藏信息表格数据
-      collectList: [],
+      // 评论信息表格数据
+      commentList: [],
       // 弹出层标题
       title: "",
       // 是否显示弹出层
@@ -185,6 +201,8 @@ export default {
         userId: null,
         goodsId: null,
         merchantId: null,
+        content: null,
+        scores: null,
         time: null
       },
       // 表单参数
@@ -198,11 +216,11 @@ export default {
     this.getList();
   },
   methods: {
-    /** 查询收藏信息列表 */
+    /** 查询评论信息列表 */
     getList() {
       this.loading = true;
-      listCollect(this.queryParams).then(response => {
-        this.collectList = response.rows;
+      listComment(this.queryParams).then(response => {
+        this.commentList = response.rows;
         this.total = response.total;
         this.loading = false;
       });
@@ -219,6 +237,8 @@ export default {
         userId: null,
         goodsId: null,
         merchantId: null,
+        content: null,
+        scores: null,
         time: null
       };
       this.resetForm("form");
@@ -243,16 +263,16 @@ export default {
     handleAdd() {
       this.reset();
       this.open = true;
-      this.title = "添加收藏信息";
+      this.title = "添加评论信息";
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
       this.reset();
       const id = row.id || this.ids
-      getCollect(id).then(response => {
+      getComment(id).then(response => {
         this.form = response.data;
         this.open = true;
-        this.title = "修改收藏信息";
+        this.title = "修改评论信息";
       });
     },
     /** 提交按钮 */
@@ -260,13 +280,13 @@ export default {
       this.$refs["form"].validate(valid => {
         if (valid) {
           if (this.form.id != null) {
-            updateCollect(this.form).then(response => {
+            updateComment(this.form).then(response => {
               this.$modal.msgSuccess("修改成功");
               this.open = false;
               this.getList();
             });
           } else {
-            addCollect(this.form).then(response => {
+            addComment(this.form).then(response => {
               this.$modal.msgSuccess("新增成功");
               this.open = false;
               this.getList();
@@ -278,8 +298,8 @@ export default {
     /** 删除按钮操作 */
     handleDelete(row) {
       const ids = row.id || this.ids;
-      this.$modal.confirm('是否确认删除收藏信息编号为"' + ids + '"的数据项？').then(function() {
-        return delCollect(ids);
+      this.$modal.confirm('是否确认删除评论信息编号为"' + ids + '"的数据项？').then(function() {
+        return delComment(ids);
       }).then(() => {
         this.getList();
         this.$modal.msgSuccess("删除成功");
@@ -287,9 +307,9 @@ export default {
     },
     /** 导出按钮操作 */
     handleExport() {
-      this.download('mall/collect/export', {
+      this.download('mall/comment/export', {
         ...this.queryParams
-      }, `collect_${new Date().getTime()}.xlsx`)
+      }, `comment_${new Date().getTime()}.xlsx`)
     }
   }
 };

@@ -2,73 +2,78 @@
 <!DOCTYPE mapper
 PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.recMall.mall.mapper.MallCartMapper">
+<mapper namespace="com.recMall.mall.mapper.MallCommentMapper">
     
-    <resultMap type="MallCart" id="MallCartResult">
+    <resultMap type="MallComment" id="MallCommentResult">
         <result property="id"    column="id"    />
         <result property="userId"    column="user_id"    />
         <result property="goodsId"    column="goods_id"    />
         <result property="merchantId"    column="merchant_id"    />
-        <result property="num"    column="num"    />
+        <result property="content"    column="content"    />
+        <result property="scores"    column="scores"    />
         <result property="time"    column="time"    />
     </resultMap>
 
-    <sql id="selectMallCartVo">
-        select id, user_id, goods_id, merchant_id, num, time from mall_cart
+    <sql id="selectMallCommentVo">
+        select id, user_id, goods_id, merchant_id, content, scores, time from mall_comment
     </sql>
 
-    <select id="selectMallCartList" parameterType="MallCart" resultMap="MallCartResult">
-        <include refid="selectMallCartVo"/>
+    <select id="selectMallCommentList" parameterType="MallComment" resultMap="MallCommentResult">
+        <include refid="selectMallCommentVo"/>
         <where>  
             <if test="userId != null  and userId != ''"> and user_id = #{userId}</if>
             <if test="goodsId != null  and goodsId != ''"> and goods_id = #{goodsId}</if>
             <if test="merchantId != null  and merchantId != ''"> and merchant_id = #{merchantId}</if>
-            <if test="num != null "> and num = #{num}</if>
+            <if test="content != null  and content != ''"> and content = #{content}</if>
+            <if test="scores != null "> and scores = #{scores}</if>
             <if test="time != null  and time != ''"> and time = #{time}</if>
         </where>
     </select>
     
-    <select id="selectMallCartById" parameterType="Long" resultMap="MallCartResult">
-        <include refid="selectMallCartVo"/>
+    <select id="selectMallCommentById" parameterType="Long" resultMap="MallCommentResult">
+        <include refid="selectMallCommentVo"/>
         where id = #{id}
     </select>
 
-    <insert id="insertMallCart" parameterType="MallCart" useGeneratedKeys="true" keyProperty="id">
-        insert into mall_cart
+    <insert id="insertMallComment" parameterType="MallComment" useGeneratedKeys="true" keyProperty="id">
+        insert into mall_comment
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="userId != null">user_id,</if>
             <if test="goodsId != null">goods_id,</if>
             <if test="merchantId != null">merchant_id,</if>
-            <if test="num != null">num,</if>
+            <if test="content != null">content,</if>
+            <if test="scores != null">scores,</if>
             <if test="time != null">time,</if>
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="userId != null">#{userId},</if>
             <if test="goodsId != null">#{goodsId},</if>
             <if test="merchantId != null">#{merchantId},</if>
-            <if test="num != null">#{num},</if>
+            <if test="content != null">#{content},</if>
+            <if test="scores != null">#{scores},</if>
             <if test="time != null">#{time},</if>
          </trim>
     </insert>
 
-    <update id="updateMallCart" parameterType="MallCart">
-        update mall_cart
+    <update id="updateMallComment" parameterType="MallComment">
+        update mall_comment
         <trim prefix="SET" suffixOverrides=",">
             <if test="userId != null">user_id = #{userId},</if>
             <if test="goodsId != null">goods_id = #{goodsId},</if>
             <if test="merchantId != null">merchant_id = #{merchantId},</if>
-            <if test="num != null">num = #{num},</if>
+            <if test="content != null">content = #{content},</if>
+            <if test="scores != null">scores = #{scores},</if>
             <if test="time != null">time = #{time},</if>
         </trim>
         where id = #{id}
     </update>
 
-    <delete id="deleteMallCartById" parameterType="Long">
-        delete from mall_cart where id = #{id}
+    <delete id="deleteMallCommentById" parameterType="Long">
+        delete from mall_comment where id = #{id}
     </delete>
 
-    <delete id="deleteMallCartByIds" parameterType="String">
-        delete from mall_cart where id in 
+    <delete id="deleteMallCommentByIds" parameterType="String">
+        delete from mall_comment where id in 
         <foreach item="id" collection="array" open="(" separator="," close=")">
             #{id}
         </foreach>

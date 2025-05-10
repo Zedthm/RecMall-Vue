@@ -7,7 +7,7 @@ import com.recMall.mall.domain.MallCart;
  * 购物车Mapper接口
  * 
  * @author recMall
- * @date 2025-05-03
+ * @date 2025-05-04
  */
 public interface MallCartMapper 
 {

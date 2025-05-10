@@ -9,18 +9,20 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="userId"    column="user_id"    />
         <result property="goodsId"    column="goods_id"    />
         <result property="merchantId"    column="merchant_id"    />
+        <result property="time"    column="time"    />
     </resultMap>
 
     <sql id="selectMallCollectVo">
-        select id, user_id, goods_id, merchant_id from mall_collect
+        select id, user_id, goods_id, merchant_id, time from mall_collect
     </sql>
 
     <select id="selectMallCollectList" parameterType="MallCollect" resultMap="MallCollectResult">
         <include refid="selectMallCollectVo"/>
         <where>  
-            <if test="userId != null "> and user_id = #{userId}</if>
-            <if test="goodsId != null "> and goods_id = #{goodsId}</if>
-            <if test="merchantId != null "> and merchant_id = #{merchantId}</if>
+            <if test="userId != null  and userId != ''"> and user_id = #{userId}</if>
+            <if test="goodsId != null  and goodsId != ''"> and goods_id = #{goodsId}</if>
+            <if test="merchantId != null  and merchantId != ''"> and merchant_id = #{merchantId}</if>
+            <if test="time != null  and time != ''"> and time = #{time}</if>
         </where>
     </select>
     
@@ -35,11 +37,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="userId != null">user_id,</if>
             <if test="goodsId != null">goods_id,</if>
             <if test="merchantId != null">merchant_id,</if>
+            <if test="time != null">time,</if>
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="userId != null">#{userId},</if>
             <if test="goodsId != null">#{goodsId},</if>
             <if test="merchantId != null">#{merchantId},</if>
+            <if test="time != null">#{time},</if>
          </trim>
     </insert>
 
@@ -49,6 +53,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="userId != null">user_id = #{userId},</if>
             <if test="goodsId != null">goods_id = #{goodsId},</if>
             <if test="merchantId != null">merchant_id = #{merchantId},</if>
+            <if test="time != null">time = #{time},</if>
         </trim>
         where id = #{id}
     </update>

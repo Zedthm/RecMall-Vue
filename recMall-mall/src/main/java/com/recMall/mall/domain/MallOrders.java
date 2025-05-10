@@ -10,7 +10,7 @@ import com.recMall.common.core.domain.BaseEntity;
  * 订单信息对象 mall_orders
  * 
  * @author recMall
- * @date 2025-05-03
+ * @date 2025-05-05
  */
 public class MallOrders extends BaseEntity
 {
@@ -25,11 +25,11 @@ public class MallOrders extends BaseEntity
 
     /** 商品ID */
     @Excel(name = "商品ID")
-    private Long goodsId;
+    private String goodsId;
 
-    /** 商家ID */
-    @Excel(name = "商家ID")
-    private Long merchantId;
+    /** 店铺ID */
+    @Excel(name = "店铺ID")
+    private String merchantId;
 
     /** 商品数量 */
     @Excel(name = "商品数量")
@@ -37,7 +37,7 @@ public class MallOrders extends BaseEntity
 
     /** 用户ID */
     @Excel(name = "用户ID")
-    private Long userId;
+    private String userId;
 
     /** 订单价格 */
     @Excel(name = "订单价格")
@@ -50,6 +50,10 @@ public class MallOrders extends BaseEntity
     /** 订单状态 */
     @Excel(name = "订单状态")
     private String status;
+
+    /** 下单时间 */
+    @Excel(name = "下单时间")
+    private String time;
 
     public void setId(Long id) 
     {
@@ -71,22 +75,22 @@ public class MallOrders extends BaseEntity
         return orderId;
     }
 
-    public void setGoodsId(Long goodsId) 
+    public void setGoodsId(String goodsId) 
     {
         this.goodsId = goodsId;
     }
 
-    public Long getGoodsId() 
+    public String getGoodsId() 
     {
         return goodsId;
     }
 
-    public void setMerchantId(Long merchantId) 
+    public void setMerchantId(String merchantId) 
     {
         this.merchantId = merchantId;
     }
 
-    public Long getMerchantId() 
+    public String getMerchantId() 
     {
         return merchantId;
     }
@@ -101,12 +105,12 @@ public class MallOrders extends BaseEntity
         return num;
     }
 
-    public void setUserId(Long userId) 
+    public void setUserId(String userId) 
     {
         this.userId = userId;
     }
 
-    public Long getUserId() 
+    public String getUserId() 
     {
         return userId;
     }
@@ -141,6 +145,16 @@ public class MallOrders extends BaseEntity
         return status;
     }
 
+    public void setTime(String time) 
+    {
+        this.time = time;
+    }
+
+    public String getTime() 
+    {
+        return time;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
@@ -153,6 +167,7 @@ public class MallOrders extends BaseEntity
             .append("price", getPrice())
             .append("addressId", getAddressId())
             .append("status", getStatus())
+            .append("time", getTime())
             .toString();
     }
 }

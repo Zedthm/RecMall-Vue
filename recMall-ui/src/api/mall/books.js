@@ -1,5 +1,25 @@
 import request from '@/utils/request'
+// 查询推荐商品
+export function listRecBooksDeepFM() {
+  return request({
+    url: '/mall/recBooks/deep-fm',
+    method: 'get',
+  })
+}
 
+export function listRecBooksNeuralCF() {
+  return request({
+    url: '/mall/recBooks/neural-cf',
+    method: 'get',
+  })
+}
+
+export function listRecBooksNeuralCFSingleUser() {
+  return request({
+    url: '/mall/recBooks/single',
+    method: 'get',
+  })
+}
 // 查询商品信息-书籍核心数据列表
 export function listBooks(query) {
   return request({

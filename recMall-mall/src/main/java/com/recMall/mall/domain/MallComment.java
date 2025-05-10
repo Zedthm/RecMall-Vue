@@ -6,16 +6,16 @@ import com.recMall.common.annotation.Excel;
 import com.recMall.common.core.domain.BaseEntity;
 
 /**
- * 收藏信息对象 mall_collect
+ * 评论信息对象 mall_comment
  * 
  * @author recMall
  * @date 2025-05-05
  */
-public class MallCollect extends BaseEntity
+public class MallComment extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
 
-    /** 商品ID */
+    /** ID */
     private Long id;
 
     /** 用户ID */
@@ -30,8 +30,16 @@ public class MallCollect extends BaseEntity
     @Excel(name = "店铺ID")
     private String merchantId;
 
-    /** 收藏时间 */
-    @Excel(name = "收藏时间")
+    /** 评论内容 */
+    @Excel(name = "评论内容")
+    private String content;
+
+    /** 评分 */
+    @Excel(name = "评分")
+    private Long scores;
+
+    /** 评论时间 */
+    @Excel(name = "评论时间")
     private String time;
 
     public void setId(Long id) 
@@ -74,6 +82,26 @@ public class MallCollect extends BaseEntity
         return merchantId;
     }
 
+    public void setContent(String content) 
+    {
+        this.content = content;
+    }
+
+    public String getContent() 
+    {
+        return content;
+    }
+
+    public void setScores(Long scores) 
+    {
+        this.scores = scores;
+    }
+
+    public Long getScores() 
+    {
+        return scores;
+    }
+
     public void setTime(String time) 
     {
         this.time = time;
@@ -91,6 +119,8 @@ public class MallCollect extends BaseEntity
             .append("userId", getUserId())
             .append("goodsId", getGoodsId())
             .append("merchantId", getMerchantId())
+            .append("content", getContent())
+            .append("scores", getScores())
             .append("time", getTime())
             .toString();
     }

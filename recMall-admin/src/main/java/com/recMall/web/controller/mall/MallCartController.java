@@ -25,7 +25,7 @@ import com.recMall.common.core.page.TableDataInfo;
  * 购物车Controller
  * 
  * @author recMall
- * @date 2025-05-03
+ * @date 2025-05-04
  */
 @RestController
 @RequestMapping("/mall/cart")

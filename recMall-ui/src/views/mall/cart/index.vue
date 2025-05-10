@@ -33,6 +33,14 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
+      <el-form-item label="添加时间" prop="time">
+        <el-date-picker clearable
+          v-model="queryParams.time"
+          type="date"
+          value-format="yyyy-MM-dd"
+          placeholder="请选择添加时间">
+        </el-date-picker>
+      </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
         <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
@@ -92,6 +100,11 @@
       <el-table-column label="商品ID" align="center" prop="goodsId" />
       <el-table-column label="店铺ID" align="center" prop="merchantId" />
       <el-table-column label="数量" align="center" prop="num" />
+      <el-table-column label="添加时间" align="center" prop="time" width="180">
+        <template slot-scope="scope">
+          <span>{{ parseTime(scope.row.time, '{y}-{m}-{d}') }}</span>
+        </template>
+      </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
@@ -135,6 +148,14 @@
         <el-form-item label="数量" prop="num">
           <el-input v-model="form.num" placeholder="请输入数量" />
         </el-form-item>
+        <el-form-item label="添加时间" prop="time">
+          <el-date-picker clearable
+            v-model="form.time"
+            type="date"
+            value-format="yyyy-MM-dd"
+            placeholder="请选择添加时间">
+          </el-date-picker>
+        </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button type="primary" @click="submitForm">确 定</el-button>
@@ -176,7 +197,8 @@ export default {
         userId: null,
         goodsId: null,
         merchantId: null,
-        num: null
+        num: null,
+        time: null
       },
       // 表单参数
       form: {},
@@ -210,7 +232,8 @@ export default {
         userId: null,
         goodsId: null,
         merchantId: null,
-        num: null
+        num: null,
+        time: null
       };
       this.resetForm("form");
     },

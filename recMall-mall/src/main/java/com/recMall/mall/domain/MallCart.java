@@ -9,7 +9,7 @@ import com.recMall.common.core.domain.BaseEntity;
  * 购物车对象 mall_cart
  * 
  * @author recMall
- * @date 2025-05-03
+ * @date 2025-05-05
  */
 public class MallCart extends BaseEntity
 {
@@ -20,19 +20,23 @@ public class MallCart extends BaseEntity
 
     /** 用户ID */
     @Excel(name = "用户ID")
-    private Long userId;
+    private String userId;
 
     /** 商品ID */
     @Excel(name = "商品ID")
-    private Long goodsId;
+    private String goodsId;
 
     /** 店铺ID */
     @Excel(name = "店铺ID")
-    private Long merchantId;
+    private String merchantId;
 
     /** 数量 */
     @Excel(name = "数量")
     private Long num;
+
+    /** 添加时间 */
+    @Excel(name = "添加时间")
+    private String time;
 
     public void setId(Long id) 
     {
@@ -44,32 +48,32 @@ public class MallCart extends BaseEntity
         return id;
     }
 
-    public void setUserId(Long userId) 
+    public void setUserId(String userId) 
     {
         this.userId = userId;
     }
 
-    public Long getUserId() 
+    public String getUserId() 
     {
         return userId;
     }
 
-    public void setGoodsId(Long goodsId) 
+    public void setGoodsId(String goodsId) 
     {
         this.goodsId = goodsId;
     }
 
-    public Long getGoodsId() 
+    public String getGoodsId() 
     {
         return goodsId;
     }
 
-    public void setMerchantId(Long merchantId) 
+    public void setMerchantId(String merchantId) 
     {
         this.merchantId = merchantId;
     }
 
-    public Long getMerchantId() 
+    public String getMerchantId() 
     {
         return merchantId;
     }
@@ -84,6 +88,16 @@ public class MallCart extends BaseEntity
         return num;
     }
 
+    public void setTime(String time) 
+    {
+        this.time = time;
+    }
+
+    public String getTime() 
+    {
+        return time;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
@@ -92,6 +106,7 @@ public class MallCart extends BaseEntity
             .append("goodsId", getGoodsId())
             .append("merchantId", getMerchantId())
             .append("num", getNum())
+            .append("time", getTime())
             .toString();
     }
 }

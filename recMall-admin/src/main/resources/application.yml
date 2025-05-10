@@ -68,7 +68,7 @@ spring:
   # redis 配置
   redis:
     # 地址
-    host: 10.60.81.129
+    host: 192.168.241.130
     # 端口，默认为6379
     port: 16379
     # 数据库索引
@@ -127,3 +127,12 @@ xss:
   excludes: /system/notice
   # 匹配链接
   urlPatterns: /system/*,/monitor/*,/tool/*
+
+tensorflow:
+  serving:
+    endpoint: http://192.168.241.130:8501
+    model-name1: deep-fm
+    model-name2: neural-cf
+    timeout: 300000  # 毫秒
+    max-connections: 100  # 连接池配置
+    batch-size: 500

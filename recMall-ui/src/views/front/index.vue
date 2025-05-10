@@ -64,10 +64,14 @@
           </div>
           <div style="flex: 3; background-color: #F3F3F3FF; margin-top: 15px; margin-left: 15px; border-radius: 10px;">
             <div style="text-align: center; margin-top: 30px; ">
-              <img @click="goToProfile('/front/person')" :src="user.avatar" alt=""
-                   style="cursor: pointer; width: 80px; height: 80px; border-radius: 50%" @mouseover="changeCursorStyle"
-                   @mouseleave="resetCursorStyle">
-              <div style="margin-top: 10px">Hi，{{ user.name }}</div>
+              <img
+                @click="goToProfile('/user/profile')"
+                :src="user.avatar || require('@/assets/default-avatar.png')"
+                alt="用户头像"
+                style="cursor: pointer; width: 80px; height: 80px; border-radius: 50%"
+                @mouseover="changeCursorStyle"
+                @mouseleave="resetCursorStyle">
+              <div style="margin-top: 10px">Hi，{{ user.nickName || '欢迎回来' }}</div>
             </div>
 
             <div style="margin-top: 20px; padding: 0 15px">
@@ -77,7 +81,7 @@
             <div style="margin: 20px 10px 10px 10px; width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">
               <i class="el-icon-bell"></i>
               <span style="font-weight: bold">公告</span>
-              <span style="color: #666666;">：{{ top }}</span>
+              <span style="color: #666666;">：{{ topNotice }}</span>
             </div>
 
             <div style="display: flex; margin-top: 50px">
@@ -190,7 +194,16 @@
 <script>
 import { listCategories } from "@/api/mall/categories";
 import { listNotice, getNotice, delNotice, addNotice, updateNotice } from "@/api/system/notice";
-import { listBooks, getBook, delBook, addBook, updateBook } from "@/api/mall/books";
+import {
+  listBooks,
+  getBook,
+  delBook,
+  addBook,
+  updateBook,
+  listRecBooksDeepFM,
+  listRecBooksNeuralCF, listRecBooksNeuralCFSingleUser
+} from "@/api/mall/books";
+import {getUserProfile} from "@/api/system/user";
 
 export default {
   name: 'FrontHomePage',
@@ -209,9 +222,11 @@ export default {
         pageNum: 1,
         pageSize: 10,
       },
-      user: JSON.parse(localStorage.getItem('xm-user') || '{}'),
+      user: {},
+      roleGroup: {},
+      postGroup: {},
       categoriesList: [],
-      top: null,
+      topNotice: null,
       noticeList: [],
       carousel_top: [
         require('@/assets/icons/front/carousel-1.png'),
@@ -232,12 +247,19 @@ export default {
       recommendData: [],
     }
   },
+  created() {
+    this.getUser();
+  },
   mounted() {
+    listRecBooksDeepFM()
+    // listRecBooksNeuralCF()
+    // listRecBooksNeuralCFSingleUser()
     this.loadData(); // 使用 loadData 方法并行加载数据
     this.initScrollListener();
   },
   beforeDestroy() {
-    window.removeEventListener('scroll', this.handleScroll)
+    window.removeEventListener('scroll', this.handleScroll);
+    clearInterval(this.intervalId);
   },
   filters:{
     fixImgPath(value) {
@@ -247,6 +269,13 @@ export default {
     }
   },
   methods: {
+    getUser() {
+      getUserProfile().then(response => {
+        this.user = response.data;
+        this.roleGroup = response.roleGroup;
+        this.postGroup = response.postGroup;
+      });
+    },
     // 带防抖的滚动处理
     handleScroll: _.debounce(function() {
       const { scrollTop, clientHeight, scrollHeight } = document.documentElement
@@ -278,7 +307,7 @@ export default {
     },
 
     goToProfile(url) {
-      if (this.user.id == null) {
+      if (this.user.userId == null) {
         this.$message.warning('请先登录'); // 提示用户登录
         this.navTo('/login');
       } else {
@@ -349,22 +378,24 @@ export default {
     },
     getNotices() {
       return listNotice(this.queryParams).then(res => {
-            this.noticeList = res.row;
-            let i = 0;
-            if (this.noticeList && this.noticeList.length) {
-              this.top = this.noticeList[0].content;
-              setInterval(() => {
-                this.top = this.noticeList[i].content;
-                i++;
-                if (i === this.noticeList.length) {
-                  i = 0;
-                }
-              }, 2500);
-            }
-          }).catch(error => {
-            console.error("加载公告错误:", error);
-            this.$message.error('加载公告失败');
-          });
+        this.noticeList = res.rows; // 修正字段名rows
+        let i = 0;
+        if (this.noticeList && this.noticeList.length) {
+          // 清除旧定时器防止重复
+          if (this.intervalId) clearInterval(this.intervalId);
+
+          // 使用noticeContent字段
+          this.topNotice = this.noticeList[0].noticeContent;
+
+          this.intervalId = setInterval(() => {
+            this.topNotice = `${this.noticeList[i].noticeTitle}：${this.noticeList[i].noticeContent}`;
+            i = (i + 1) % this.noticeList.length; // 更简洁的循环逻辑
+          }, 2500);
+        }
+      }).catch(error => {
+        console.error("加载公告错误:", error);
+        this.$message.error('加载公告失败');
+      });
     },
   }
 }

@@ -17,10 +17,10 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="商家ID" prop="merchantId">
+      <el-form-item label="店铺ID" prop="merchantId">
         <el-input
           v-model="queryParams.merchantId"
-          placeholder="请输入商家ID"
+          placeholder="请输入店铺ID"
           clearable
           @keyup.enter.native="handleQuery"
         />
@@ -56,6 +56,14 @@
           clearable
           @keyup.enter.native="handleQuery"
         />
+      </el-form-item>
+      <el-form-item label="下单时间" prop="time">
+        <el-date-picker clearable
+          v-model="queryParams.time"
+          type="date"
+          value-format="yyyy-MM-dd"
+          placeholder="请选择下单时间">
+        </el-date-picker>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
@@ -114,12 +122,17 @@
       <el-table-column label="主键ID" align="center" prop="id" />
       <el-table-column label="订单ID" align="center" prop="orderId" />
       <el-table-column label="商品ID" align="center" prop="goodsId" />
-      <el-table-column label="商家ID" align="center" prop="merchantId" />
+      <el-table-column label="店铺ID" align="center" prop="merchantId" />
       <el-table-column label="商品数量" align="center" prop="num" />
       <el-table-column label="用户ID" align="center" prop="userId" />
       <el-table-column label="订单价格" align="center" prop="price" />
       <el-table-column label="地址ID" align="center" prop="addressId" />
       <el-table-column label="订单状态" align="center" prop="status" />
+      <el-table-column label="下单时间" align="center" prop="time" width="180">
+        <template slot-scope="scope">
+          <span>{{ parseTime(scope.row.time, '{y}-{m}-{d}') }}</span>
+        </template>
+      </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
@@ -157,8 +170,8 @@
         <el-form-item label="商品ID" prop="goodsId">
           <el-input v-model="form.goodsId" placeholder="请输入商品ID" />
         </el-form-item>
-        <el-form-item label="商家ID" prop="merchantId">
-          <el-input v-model="form.merchantId" placeholder="请输入商家ID" />
+        <el-form-item label="店铺ID" prop="merchantId">
+          <el-input v-model="form.merchantId" placeholder="请输入店铺ID" />
         </el-form-item>
         <el-form-item label="商品数量" prop="num">
           <el-input v-model="form.num" placeholder="请输入商品数量" />
@@ -171,6 +184,14 @@
         </el-form-item>
         <el-form-item label="地址ID" prop="addressId">
           <el-input v-model="form.addressId" placeholder="请输入地址ID" />
+        </el-form-item>
+        <el-form-item label="下单时间" prop="time">
+          <el-date-picker clearable
+            v-model="form.time"
+            type="date"
+            value-format="yyyy-MM-dd"
+            placeholder="请选择下单时间">
+          </el-date-picker>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -217,7 +238,8 @@ export default {
         userId: null,
         price: null,
         addressId: null,
-        status: null
+        status: null,
+        time: null
       },
       // 表单参数
       form: {},
@@ -255,7 +277,8 @@ export default {
         userId: null,
         price: null,
         addressId: null,
-        status: null
+        status: null,
+        time: null
       };
       this.resetForm("form");
     },
