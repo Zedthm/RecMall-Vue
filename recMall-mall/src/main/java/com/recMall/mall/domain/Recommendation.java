@@ -2,6 +2,7 @@ package com.recMall.mall.domain;
 
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -13,29 +14,50 @@ import java.util.List;
 
 public class Recommendation {
     private String userId;
-    private String bookId;
-    private Double prediction;
-    private LocalDateTime time;
+    private List<BookRec> books;
 
-    public Recommendation() {
-    }
-
-    public Recommendation(String userId, String bookId, Double prediction, LocalDateTime time) {
+    public Recommendation(String userId, List<BookRec> books) {
         this.userId = userId;
-        this.bookId = bookId;
-        this.prediction = prediction;
-        this.time = time;
+        this.books = books != null ? books : new ArrayList<>();
     }
 
+    static public class BookRec {
+        private String bookId;
+        private Double score;
+        private LocalDateTime time;
 
-    @Override
-    public String toString() {
-        return "Recommendation{" +
-                "userId='" + userId + '\'' +
-                ", bookId='" + bookId + '\'' +
-                ", prediction=" + prediction +
-                ", time=" + time +
-                '}';
+        public BookRec() {
+        }
+
+        public BookRec(String bookId, Double aDouble, LocalDateTime now) {
+            this.bookId = bookId;
+            this.score = aDouble;
+            this.time = now;
+        }
+
+        public String getBookId() {
+            return bookId;
+        }
+
+        public void setBookId(String bookId) {
+            this.bookId = bookId;
+        }
+
+        public Double getScore() {
+            return score;
+        }
+
+        public void setScore(Double score) {
+            this.score = score;
+        }
+
+        public LocalDateTime getTime() {
+            return time;
+        }
+
+        public void setTime(LocalDateTime time) {
+            this.time = time;
+        }
     }
 
     public String getUserId() {
@@ -46,27 +68,19 @@ public class Recommendation {
         this.userId = userId;
     }
 
-    public String getBookId() {
-        return bookId;
+    public List<BookRec> getBooks() {
+        return books;
     }
 
-    public void setBookId(String bookId) {
-        this.bookId = bookId;
+    public void setBooks(List<BookRec> books) {
+        this.books = books;
     }
 
-    public Double getPrediction() {
-        return prediction;
-    }
-
-    public void setPrediction(Double prediction) {
-        this.prediction = prediction;
-    }
-
-    public LocalDateTime getTime() {
-        return time;
-    }
-
-    public void setTime(LocalDateTime time) {
-        this.time = time;
+    @Override
+    public String toString() {
+        return "Recommendation{" +
+                "userId='" + userId + '\'' +
+                ", books=" + books +
+                '}';
     }
 }

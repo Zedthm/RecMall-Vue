@@ -6,6 +6,8 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.Resource;
 import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletResponse;
+
+import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.FastByteArrayOutputStream;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,6 +27,7 @@ import com.recMall.system.service.ISysConfigService;
  * 
  * @author zedthm
  */
+@Api(tags = "系统认证模块", value = "CaptchaController")
 @RestController
 public class CaptchaController
 {
@@ -42,6 +45,21 @@ public class CaptchaController
     /**
      * 生成验证码
      */
+    @ApiOperation(
+            value = "获取验证码图片",
+            notes = "生成图形验证码并返回Base64编码图片，需前端携带uuid进行验证",
+            response = AjaxResult.class,
+            produces = "application/json"
+    )
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "验证码生成成功",
+                    examples = @Example({
+                            @ExampleProperty(value =
+                                    "{'captchaEnabled': true, 'uuid': 'd3d944...', 'img': 'data:image/jpeg;base64,/9j/4AAQ...'}",
+                                    mediaType = "application/json")
+                    })),
+            @ApiResponse(code = 500, message = "验证码生成失败（如图片写入异常）")
+    })
     @GetMapping("/captchaImage")
     public AjaxResult getCode(HttpServletResponse response) throws IOException
     {

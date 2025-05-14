@@ -1,15 +1,15 @@
 import request from '@/utils/request'
 // 查询推荐商品
-export function listRecBooksDeepFM() {
+export function listRecBooksDeepFM(userId) {
   return request({
-    url: '/mall/recBooks/deep-fm',
+    url: '/mall/recBooks/deep-fm'+userId,
     method: 'get',
   })
 }
 
-export function listRecBooksNeuralCF() {
+export function listRecBooksNeuralCF(userId) {
   return request({
-    url: '/mall/recBooks/neural-cf',
+    url: '/mall/recBooks/neural-cf'+userId,
     method: 'get',
   })
 }

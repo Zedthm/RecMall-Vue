@@ -126,7 +126,7 @@
                   @mouseover="changeCursorStyle"
                   @mouseleave="resetCursorStyle"
                   @click="navTo('/front/detail?id=' + item.bookId)"
-                  :src="item.img || require('@/assets/default-book.png')"
+                  :src=getBookCover(item)
                   alt="图书封面"
                   class="book-cover"
                   @error="handleImageError"
@@ -165,19 +165,56 @@
           <span v-if="isLoading">正在加载更多商品...</span>
           <span v-if="!booksHasMore" class="no-more">已加载全部商品</span>
         </div>
-        <div v-if="user.id"
-             style="margin: 40px 0 0 15px; height: 40px; background-color: #04BF04FF; font-size: 20px; color: white; width: 130px; font-weight: bold; line-height: 40px; text-align: center; border-radius: 20px">
+        <div style="margin: 40px 0 0 15px; height: 40px; background-color: #04BF04FF; font-size: 20px; color: white; width: 130px; font-weight: bold; line-height: 40px; text-align: center; border-radius: 20px">
           猜你喜欢
         </div>
         <div style="margin: 10px 5px 0 5px">
-          <el-row>
-            <el-col :span="5" v-for="item in recommendData">
-              <img @mouseover="changeCursorStyle"
-                   @mouseleave="resetCursorStyle"
-                   @click="navTo('/front/detail?id=' + item.id)" :src="item.img" alt=""
-                   style="width: 100%; height: 175px; border-radius: 10px; border: #cccccc 1px solid">
-              <div style="margin-top: 10px; font-weight: 500; font-size: 16px; width: 180px; color: #000000FF; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">{{ item.name }}</div>
-              <div style="margin-top: 5px; font-size: 20px; color: #FF5000FF">￥ {{ item.price }} / {{ item.unit }}</div>
+          <el-row :gutter="20">
+            <!-- 修改字段映射，添加数据校验 -->
+            <el-col
+              :span="5"
+              v-for="(item, index) in recommendData"
+              :key="item.bookId"
+              style="margin-bottom: 20px;"
+            >
+              <!-- 图片处理优化 -->
+              <div class="book-card">
+                <img
+                  @mouseover="changeCursorStyle"
+                  @mouseleave="resetCursorStyle"
+                  @click="navTo('/front/detail?id=' + item.bookId)"
+                  :src="item.img || require('@/assets/default-book.png')"
+                  alt="图书封面"
+                  class="book-cover"
+                  @error="handleImageError"
+                >
+
+                <!-- 信息展示优化 -->
+                <div class="book-info">
+                  <div class="title" :title="item.title">
+                    {{ item.title || '未命名图书' }}
+                  </div>
+
+                  <div class="price-section">
+                    <span class="price">￥{{ formatPrice(item.price) }}</span>
+                    <span class="unit">/ {{ item.units || '本' }}</span>
+
+                    <!-- 库存状态 -->
+                    <div
+                      v-if="item.inventory <= 0"
+                      class="stock-tag out-of-stock"
+                    >
+                      已售罄
+                    </div>
+                    <div
+                      v-else
+                      class="stock-tag"
+                    >
+                      库存 {{ item.inventory }} {{ item.units || '本' }}
+                    </div>
+                  </div>
+                </div>
+              </div>
             </el-col>
           </el-row>
         </div>
@@ -245,15 +282,15 @@ export default {
       ],
       booksList: [],
       recommendData: [],
+      defaultCovers: [], // 存储默认封面列表
+      maxDefaultCovers: 30 // 根据实际图片数量修改
     }
   },
   created() {
     this.getUser();
   },
   mounted() {
-    listRecBooksDeepFM()
-    // listRecBooksNeuralCF()
-    // listRecBooksNeuralCFSingleUser()
+    this.loadDynamicCovers();
     this.loadData(); // 使用 loadData 方法并行加载数据
     this.initScrollListener();
   },
@@ -269,6 +306,55 @@ export default {
     }
   },
   methods: {
+    // 动态加载封面
+    loadDynamicCovers() {
+      if (this.defaultCovers.length > 10){
+        return;
+      }
+      try {
+        // 获取assets/default-covers目录下所有图片
+        const coverContext = require.context(
+          '@/assets/default-covers', // 目录路径
+          true,                      // 包含子目录
+          /\.(png|jpe?g|webp|gif)$/i // 匹配图片格式（不区分大小写）
+        );
+
+        // 转换路径并过滤非图片文件
+        this.defaultCovers = coverContext.keys()
+          .filter(path => !/\.(svg|json)$/i.test(path)) // 排除非图片类型
+          .map(path => {
+            try {
+              return require('@/assets/default-covers/' + path.split('/').pop());
+            } catch (e) {
+              console.warn('封面加载失败:', path);
+              return null;
+            }
+          })
+          .filter(Boolean);
+
+        // 添加保底图片
+        if (this.defaultCovers.length === 0) {
+          this.defaultCovers.push(require('@/assets/default-book.png'));
+        }
+      } catch (error) {
+        console.error('封面加载异常:', error);
+        this.defaultCovers = [require('@/assets/default-book.png')];
+      }
+    },
+
+    // 获取封面图片地址
+    getBookCover(item) {
+      return item.img || this.getRandomDefaultCover();
+    },
+
+    // 生成随机默认封面
+    getRandomDefaultCover() {
+      if (this.defaultCovers.length > 0) {
+        const randomIndex = Math.floor(Math.random() * this.defaultCovers.length);
+        return this.defaultCovers[randomIndex];
+      }
+      return require('@/assets/default-book.png'); // 保底默认图
+    },
     getUser() {
       getUserProfile().then(response => {
         this.user = response.data;
@@ -325,7 +411,7 @@ export default {
     },
     loadData() {
       // 使用 Promise.all 并行加载所有数据
-      Promise.all([this.getCategories(), this.getNotices(), this.getBooks(), this.loadRecommend()])
+      Promise.all([this.getCategories(), this.getNotices(), this.getBooks(), this.getRecBooksDeepFM()])
           .then(() => {
             console.log("所有数据加载完成");
           })
@@ -361,6 +447,19 @@ export default {
         this.$message.error('加载商品失败');
       });
 
+    },
+    getRecBooksDeepFM(){
+      this.loading = true;
+      return listRecBooksDeepFM(500).then(res => {
+        if (res.code == '200') {
+          this.recommendData = res.rows;
+        }else{
+          this.$message.error(res.msg);
+        }
+      }).catch(error => {
+        console.error("加载推荐商品错误:", error);
+        this.$message.error('加载推荐商品商品失败');
+      });
     },
     getCategories() {
       this.loading = true;

@@ -2,6 +2,8 @@ package com.recMall.mall.service;
 
 import com.alibaba.fastjson2.JSONArray;
 
+import static java.util.AbstractMap.SimpleEntry;
+
 
 import com.alibaba.fastjson2.JSONObject;
 import com.recMall.mall.domain.MallRecBooksBookDto;
@@ -13,9 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -83,6 +83,7 @@ public class ModelService {
                 .collect(Collectors.toList());
 
     }
+
     private List<Double> batchPredict(String modelName, String featuresJson) {
         JSONObject requestJson = JSONObject.parseObject(featuresJson);
         JSONArray instances = requestJson.getJSONArray("instances");
@@ -117,24 +118,41 @@ public class ModelService {
     public List<Recommendation> processPredictions(List<Double> predictions,
                                                    MallRecBooksUserDto userDto,
                                                    MallRecBooksBookDto bookDto) {
-        // 构建快速查找表
+        // 构建书籍查找表
         Map<String, MallRecBooksBookDto.BookDto> bookMap = bookDto.getBookList().stream()
                 .collect(Collectors.toMap(MallRecBooksBookDto.BookDto::getBookId, b -> b));
 
-        Map<String, MallRecBooksUserDto.UserDto> userMap = userDto.getUserList().stream()
-                .collect(Collectors.toMap(u -> u.getUserId() + "_" + u.getBookId(), u -> u));
+        // 使用同一时间戳用于所有推荐
+        final LocalDateTime now = LocalDateTime.now();
 
-        return IntStream.range(0, predictions.size())
-                .mapToObj(i -> {
-                    MallRecBooksUserDto.UserDto user = userDto.getUserList().get(i);
-                    MallRecBooksBookDto.BookDto book = bookMap.get(user.getBookId());
+        // 创建中间结构暂存数据
+        Map<String, List<Recommendation.BookRec>> userRecMap = new HashMap<>();
 
-                    return new Recommendation(
-                            user.getUserId(),
-                            book.getBookId(),
-                            predictions.get(i),
-                            LocalDateTime.now()
-                    );
+        for (int i = 0; i < predictions.size(); i++) {
+            MallRecBooksUserDto.UserDto user = userDto.getUserList().get(i);
+            MallRecBooksBookDto.BookDto book = bookMap.get(user.getBookId());
+
+            // 构建书籍推荐对象
+            Recommendation.BookRec bookRec = new Recommendation.BookRec(
+                    book.getBookId(),
+                    predictions.get(i),
+                    now
+            );
+
+            // 按用户ID聚合
+            userRecMap.computeIfAbsent(user.getUserId(), k -> new ArrayList<>())
+                    .add(bookRec);
+        }
+
+        // 构建最终推荐列表（按分数排序）
+        return userRecMap.entrySet().stream()
+                .map(entry -> {
+                    List<Recommendation.BookRec> sortedBooks = entry.getValue().stream()
+                            .sorted(Comparator.comparingDouble(Recommendation.BookRec::getScore).reversed())
+                            .limit(30)
+                            .collect(Collectors.toList());
+
+                    return new Recommendation(entry.getKey(), sortedBooks);
                 })
                 .collect(Collectors.toList());
     }
