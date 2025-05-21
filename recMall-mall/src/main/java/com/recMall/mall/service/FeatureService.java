@@ -273,18 +273,7 @@ public class FeatureService {
     }
 
     public String buildFeature(String modelName, MallRecBooksUserDto userDto, MallRecBooksBookDto bookDto) {
-        // 构建书籍查找表
-        Map<String, MallRecBooksBookDto.BookDto> bookMap = bookDto.getBookList().stream()
-                .collect(Collectors.toMap(MallRecBooksBookDto.BookDto::getBookId, b -> b));
-
-        // 生成特征列表
-        List<FeatureSet> features = userDto.getUserList().stream() // 改为顺序流
-                .sorted(Comparator
-                        .comparing(MallRecBooksUserDto.UserDto::getUserId)
-                        .thenComparing(MallRecBooksUserDto.UserDto::getBookId))
-                .flatMap(user -> processUserFeatures(user, bookMap))
-                .collect(Collectors.toList());
-
+        List<FeatureSet> features = getFeatureSets(userDto, bookDto);
         // 转换为TF Serving格式
         if ("deep-fm".equals(modelName)) {
             return convertToDeepFMJson(features);
@@ -295,7 +284,8 @@ public class FeatureService {
         return null;
     }
 
-    public List<FeatureSet> buildFeatureList(MallRecBooksUserDto userDto, MallRecBooksBookDto bookDto) {
+    List<FeatureSet> getFeatureSets(MallRecBooksUserDto userDto, MallRecBooksBookDto bookDto) {
+        log.info("构建特征, 用户数据量={},  数据数据量={}", userDto.getUserList().size(), bookDto.getBookList().size());
         // 构建书籍查找表
         Map<String, MallRecBooksBookDto.BookDto> bookMap = bookDto.getBookList().stream()
                 .collect(Collectors.toMap(MallRecBooksBookDto.BookDto::getBookId, b -> b));
@@ -307,6 +297,7 @@ public class FeatureService {
                         .thenComparing(MallRecBooksUserDto.UserDto::getBookId))
                 .flatMap(user -> processUserFeatures(user, bookMap))
                 .collect(Collectors.toList());
+        log.info("特征列表大小量={}", features.size());
         return features;
     }
 
@@ -550,7 +541,15 @@ public class FeatureService {
         }
 
         public String getString(String key) {
-            return (String) data.get(key);
+            Object value = data.get(key);
+            if (value == null) {
+                return null;
+            }
+            if (value instanceof String) {
+                return (String) value;
+            } else {
+                return value.toString(); // 将数值类型转换为字符串
+            }
         }
     }
 }

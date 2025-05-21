@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -29,7 +30,7 @@ import java.util.stream.Collectors;
  */
 @Service
 public class ModelService {
-    private static final Logger log =  LoggerFactory.getLogger(ModelService.class);
+    private static final Logger log = LoggerFactory.getLogger(ModelService.class);
     private final FeatureService featureService;
     private final RestTemplate tfRestTemplate;
 
@@ -92,24 +93,35 @@ public class ModelService {
         String signature = requestJson.getString("signature_name");
 
         List<Double> results = new ArrayList<>(instances.size());
+        int totalBatches = (int) Math.ceil((double) instances.size() / batchSize);
 
-        // 分批处理逻辑
-        for (int i = 0; i < instances.size(); i += batchSize) {
-            int endIndex = Math.min(i + batchSize, instances.size());
-            JSONArray batch = new JSONArray(instances.subList(i, endIndex));
+        log.info("开始批处理预测. 总数据量={}, 批次大小={}, 总批次数={}",
+                instances.size(), batchSize, totalBatches);
 
+        for (int batchNum = 0; batchNum < totalBatches; batchNum++) {
+            int start = batchNum * batchSize;
+            int end = Math.min(start + batchSize, instances.size());
+
+            JSONArray batch = new JSONArray(instances.subList(start, end));
             JSONObject batchRequest = new JSONObject();
             batchRequest.put("signature_name", signature);
             batchRequest.put("instances", batch);
 
             List<Double> batchResult = predict(modelName, batchRequest.toJSONString());
             results.addAll(batchResult);
-            if (i % 100 == 0 && i > 0) {
-                String time = LocalDateTime.now().format(java.time.format.DateTimeFormatter.ISO_DATE_TIME);
-                log.info("已经完成批次：{}, 时间:{}, 总量:{}", i, time, results.size());
+
+            // 每完成10%进度或最后一批时输出日志
+            if ((batchNum+1) % Math.max(1, totalBatches/10) == 0 || (batchNum+1) == totalBatches) {
+                String time = LocalDateTime.now().format(DateTimeFormatter.ISO_TIME);
+                log.info("模型：{}, 批次进度: {}/{} ({}%), 累计结果数={}, 时间={}",
+                        modelName,
+                        batchNum+1, totalBatches,
+                        (batchNum+1)*100/totalBatches,
+                        results.size(), time);
             }
         }
 
+        log.info("批处理完成. 总返回结果数={}", results.size());
         return results;
     }
 
@@ -124,43 +136,74 @@ public class ModelService {
     public List<Recommendation> processPredictions(List<Double> predictions,
                                                    MallRecBooksUserDto userDto,
                                                    MallRecBooksBookDto bookDto) {
-        // 构建书籍查找表
-        Map<String, MallRecBooksBookDto.BookDto> bookMap = bookDto.getBookList().stream()
-                .collect(Collectors.toMap(MallRecBooksBookDto.BookDto::getBookId, b -> b));
+        List<FeatureService.FeatureSet> featureSets = featureService.getFeatureSets(userDto, bookDto);
+        // === 新增输入校验 ===
+        if (predictions.size() != featureSets.size()) {
+            log.error("预测结果与特征数据数量不匹配. predictions={}, features={}",
+                    predictions.size(), featureSets.size());
+            throw new IllegalArgumentException("预测数据与特征数量不一致");
+        }
 
-        // 使用同一时间戳用于所有推荐
+        // === 原书籍映射逻辑 ===
+
         final LocalDateTime now = LocalDateTime.now();
-
-        // 创建中间结构暂存数据
         Map<String, List<Recommendation.BookRec>> userRecMap = new HashMap<>();
 
-        for (int i = 0; i < predictions.size(); i++) {
-            MallRecBooksUserDto.UserDto user = userDto.getUserList().get(i);
-            MallRecBooksBookDto.BookDto book = bookMap.get(user.getBookId());
+        // === 新增计数器 ===
+        int validCount = 0;
+        int invalidCount = 0;
 
-            // 构建书籍推荐对象
+        for (int i = 0; i < predictions.size(); i++) {
+            FeatureService.FeatureSet feature = featureSets.get(i);
+            String userId = feature.getString("user_id");
+            String bookId = feature.getString("book_id");
+            if (userId == null || bookId == null) {
+                log.warn("无效特征: 用户[{}] 书籍[{}] ]",
+                        userId, bookId);
+                invalidCount++;
+                continue;
+            }
             Recommendation.BookRec bookRec = new Recommendation.BookRec(
-                    book.getBookId(),
+                    bookId,
                     predictions.get(i),
                     now
             );
-
-            // 按用户ID聚合
-            userRecMap.computeIfAbsent(user.getUserId(), k -> new ArrayList<>())
+            userRecMap.computeIfAbsent(userId, k -> new ArrayList<>())
                     .add(bookRec);
+            validCount++;
         }
 
-        // 构建最终推荐列表（按分数排序）
-        return userRecMap.entrySet().stream()
+        // === 关键日志 ===
+        log.info("特征处理完成. 总数={}, 有效={}, 无效={}",
+                featureSets.size(), validCount, invalidCount);
+
+
+        List<Recommendation> result = userRecMap.entrySet().stream()
                 .map(entry -> {
                     List<Recommendation.BookRec> sortedBooks = entry.getValue().stream()
                             .sorted(Comparator.comparingDouble(Recommendation.BookRec::getScore).reversed())
-                            .limit(30)
+                            .limit(10)
                             .collect(Collectors.toList());
+
+                    // === 新增推荐数量检查 ===
+                    if (sortedBooks.isEmpty()) {
+                        log.warn("用户 {} 无有效推荐", entry.getKey());
+                    } else if (sortedBooks.size() < 5) {
+                        log.info("用户 {} 推荐数较少: {}", entry.getKey(), sortedBooks.size());
+                    }
 
                     return new Recommendation(entry.getKey(), sortedBooks);
                 })
                 .collect(Collectors.toList());
+
+        // === 最终统计 ===
+        log.info("生成推荐结果. 总用户数={}, 平均推荐数={}",
+                result.size(),
+                result.stream()
+                        .mapToInt(r -> r.getBooks().size())
+                        .average().orElse(0));
+
+        return result;
     }
 
 }

@@ -436,10 +436,9 @@ export default {
       return require('@/assets/default-book.png'); // 保底默认图
     },
     getUser() {
-      getUserProfile().then(response => {
+      return getUserProfile().then(response => {
         this.user = response.data;
-        this.roleGroup = response.roleGroup;
-        this.postGroup = response.postGroup;
+        return response.data; // 返回用户数据以便链式调用
       });
     },
     // 带防抖的滚动处理
@@ -489,17 +488,26 @@ export default {
     navTo(url) {
       location.href = url;
     },
-    loadData() {
+    async loadData() {
       if (this.isDataStabilized) return;
-      // 使用 Promise.all 并行加载所有数据
-      Promise.all([this.getCategories(), this.getNotices(), this.getBooks(), this.getRecBooksDeepFM(),this.getRecBooksNCF()])
-        .then(() => {
-          console.log("所有数据加载完成");
-        })
-        .catch(error => {
-          console.error("加载数据时出错:", error);
-        });
-      this.isDataStabilized = true;
+
+      try {
+        // 先获取用户信息
+        await this.getUser();
+
+        // 并行加载其他数据
+        await Promise.all([
+          this.getCategories(),
+          this.getNotices(),
+          this.getBooks(),
+          this.getRecBooksDeepFM(),
+          this.getRecBooksNCF()
+        ]);
+
+        this.isDataStabilized = true;
+      } catch (error) {
+        console.error("数据加载失败:", error);
+      }
     },
     getRecBooksDeepFM() {
       this.loading = true;
