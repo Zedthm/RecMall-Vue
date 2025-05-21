@@ -31,6 +31,11 @@ import Layout from '@/layout'
 // 公共路由
 export const constantRoutes = [
   {
+    path: '',
+    component: Layout,
+    redirect: 'mall-front',
+  },
+  {
     path: '/redirect',
     component: Layout,
     hidden: true,
@@ -87,7 +92,27 @@ export const constantRoutes = [
         meta: { title: '个人中心', icon: 'user' }
       }
     ]
-  }
+  },
+  {
+    path: '/mall-front',
+    component: () => import('@/views/front'),
+    hidden: true
+  },
+  {
+    path: '/front/collect',
+    component: () => import('@/views/front/collect'),
+    hidden: true
+  },
+  {
+    path: '/front/order',
+    component: () => import('@/views/front/order'),
+    hidden: true
+  },
+  {
+    path: '/front/cart',
+    component: () => import('@/views/front/cart'),
+    hidden: true
+  },
 ]
 
 // 动态路由，基于用户权限动态去加载

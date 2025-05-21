@@ -30,7 +30,7 @@ import com.recMall.common.core.page.TableDataInfo;
  * @date 2025-05-04
  */
 @RestController
-@RequestMapping("/system/categories")
+@RequestMapping("/mall/categories")
 public class MallCategoriesController extends BaseController
 {
     @Autowired
@@ -39,7 +39,7 @@ public class MallCategoriesController extends BaseController
     /**
      * 查询书籍分类目录列表
      */
-    @PreAuthorize("@ss.hasPermi('system:categories:list')")
+    @PreAuthorize("@ss.hasPermi('mall:categories:list')")
     @GetMapping("/list")
     public TableDataInfo list(MallCategories mallCategories)
     {
@@ -51,7 +51,7 @@ public class MallCategoriesController extends BaseController
     /**
      * 导出书籍分类目录列表
      */
-    @PreAuthorize("@ss.hasPermi('system:categories:export')")
+    @PreAuthorize("@ss.hasPermi('mall:categories:export')")
     @Log(title = "书籍分类目录", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
     public void export(HttpServletResponse response, MallCategories mallCategories)
@@ -64,7 +64,7 @@ public class MallCategoriesController extends BaseController
     /**
      * 获取书籍分类目录详细信息
      */
-    @PreAuthorize("@ss.hasPermi('system:categories:query')")
+    @PreAuthorize("@ss.hasPermi('mall:categories:query')")
     @GetMapping(value = "/{categoryId}")
     public AjaxResult getInfo(@PathVariable("categoryId") String categoryId)
     {
@@ -74,7 +74,7 @@ public class MallCategoriesController extends BaseController
     /**
      * 新增书籍分类目录
      */
-    @PreAuthorize("@ss.hasPermi('system:categories:add')")
+    @PreAuthorize("@ss.hasPermi('mall:categories:add')")
     @Log(title = "书籍分类目录", businessType = BusinessType.INSERT)
     @PostMapping
     public AjaxResult add(@RequestBody MallCategories mallCategories)
@@ -85,7 +85,7 @@ public class MallCategoriesController extends BaseController
     /**
      * 修改书籍分类目录
      */
-    @PreAuthorize("@ss.hasPermi('system:categories:edit')")
+    @PreAuthorize("@ss.hasPermi('mall:categories:edit')")
     @Log(title = "书籍分类目录", businessType = BusinessType.UPDATE)
     @PutMapping
     public AjaxResult edit(@RequestBody MallCategories mallCategories)
@@ -96,7 +96,7 @@ public class MallCategoriesController extends BaseController
     /**
      * 删除书籍分类目录
      */
-    @PreAuthorize("@ss.hasPermi('system:categories:remove')")
+    @PreAuthorize("@ss.hasPermi('mall:categories:remove')")
     @Log(title = "书籍分类目录", businessType = BusinessType.DELETE)
 	@DeleteMapping("/{categoryIds}")
     public AjaxResult remove(@PathVariable String[] categoryIds)

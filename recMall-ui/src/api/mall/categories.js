@@ -3,7 +3,7 @@ import request from '@/utils/request'
 // 查询书籍分类目录列表
 export function listCategories(query) {
   return request({
-    url: '/system/categories/list',
+    url: '/mall/categories/list',
     method: 'get',
     params: query
   })
@@ -12,7 +12,7 @@ export function listCategories(query) {
 // 查询书籍分类目录详细
 export function getCategories(categoryId) {
   return request({
-    url: '/system/categories/' + categoryId,
+    url: '/mall/categories/' + categoryId,
     method: 'get'
   })
 }
@@ -20,7 +20,7 @@ export function getCategories(categoryId) {
 // 新增书籍分类目录
 export function addCategories(data) {
   return request({
-    url: '/system/categories',
+    url: '/mall/categories',
     method: 'post',
     data: data
   })
@@ -29,7 +29,7 @@ export function addCategories(data) {
 // 修改书籍分类目录
 export function updateCategories(data) {
   return request({
-    url: '/system/categories',
+    url: '/mall/categories',
     method: 'put',
     data: data
   })
@@ -38,7 +38,7 @@ export function updateCategories(data) {
 // 删除书籍分类目录
 export function delCategories(categoryId) {
   return request({
-    url: '/system/categories/' + categoryId,
+    url: '/mall/categories/' + categoryId,
     method: 'delete'
   })
 }

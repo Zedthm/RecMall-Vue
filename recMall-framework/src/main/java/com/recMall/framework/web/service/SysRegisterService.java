@@ -1,5 +1,6 @@
 package com.recMall.framework.web.service;
 
+import com.recMall.framework.web.domain.server.Sys;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import com.recMall.common.constant.CacheConstants;
@@ -17,6 +18,8 @@ import com.recMall.framework.manager.AsyncManager;
 import com.recMall.framework.manager.factory.AsyncFactory;
 import com.recMall.system.service.ISysConfigService;
 import com.recMall.system.service.ISysUserService;
+
+import java.util.ArrayList;
 
 /**
  * 注册校验方法
@@ -50,6 +53,7 @@ public class SysRegisterService
         String msg = "", username = registerBody.getUsername(), password = registerBody.getPassword();
         SysUser sysUser = new SysUser();
         sysUser.setUserName(username);
+        sysUser.setRoles(new ArrayList<>(2));
 
         // 验证码开关
         boolean captchaEnabled = configService.selectCaptchaEnabled();

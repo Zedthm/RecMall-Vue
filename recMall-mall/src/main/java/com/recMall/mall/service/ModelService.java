@@ -9,6 +9,8 @@ import com.alibaba.fastjson2.JSONObject;
 import com.recMall.mall.domain.MallRecBooksBookDto;
 import com.recMall.mall.domain.MallRecBooksUserDto;
 import com.recMall.mall.domain.Recommendation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -16,8 +18,8 @@ import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 /**
  * @author zedthm
@@ -26,8 +28,8 @@ import java.util.stream.IntStream;
  * @description:
  */
 @Service
-
 public class ModelService {
+    private static final Logger log =  LoggerFactory.getLogger(ModelService.class);
     private final FeatureService featureService;
     private final RestTemplate tfRestTemplate;
 
@@ -102,6 +104,10 @@ public class ModelService {
 
             List<Double> batchResult = predict(modelName, batchRequest.toJSONString());
             results.addAll(batchResult);
+            if (i % 100 == 0 && i > 0) {
+                String time = LocalDateTime.now().format(java.time.format.DateTimeFormatter.ISO_DATE_TIME);
+                log.info("已经完成批次：{}, 时间:{}, 总量:{}", i, time, results.size());
+            }
         }
 
         return results;

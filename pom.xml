@@ -9,7 +9,7 @@
     <version>3.8.9</version>
 
     <name>recMall</name>
-    <description>recMall管理系统</description>
+    <description>RecMall推荐商城</description>
     
     <properties>
         <recMall.version>3.8.9</recMall.version>

@@ -492,7 +492,7 @@ export default {
     loadData() {
       if (this.isDataStabilized) return;
       // 使用 Promise.all 并行加载所有数据
-      Promise.all([this.getCategories(), this.getNotices(), this.getBooks(), this.getRecBooksDeepFM(), this.getRecBooksNCF()])
+      Promise.all([this.getCategories(), this.getNotices(), this.getBooks(), this.getRecBooksDeepFM(),this.getRecBooksNCF()])
         .then(() => {
           console.log("所有数据加载完成");
         })
