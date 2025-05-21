@@ -62,3 +62,11 @@ export function delBooks(bookId) {
     method: 'delete'
   })
 }
+
+// 获取图书标签列表
+export function listBookTags(bookId) {
+  return request({
+    url: '/mall/books/tags/'+bookId,
+    method: 'get',
+  })
+}

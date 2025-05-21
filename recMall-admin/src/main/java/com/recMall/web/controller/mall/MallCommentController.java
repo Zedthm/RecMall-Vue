@@ -101,4 +101,18 @@ public class MallCommentController extends BaseController
     {
         return toAjax(mallCommentService.deleteMallCommentByIds(ids));
     }
+
+    /**
+     * 查询评论信息列表
+     */
+    @PreAuthorize("@ss.hasPermi('mall:comment:list')")
+    @GetMapping("/singleBook/{bookId}")
+    public TableDataInfo singleBook(@PathVariable("bookId") String bookId)
+    {
+        startPage();
+        MallComment mallComment = new MallComment();
+        mallComment.setGoodsId(bookId);
+        List<MallComment> list = mallCommentService.selectMallCommentList(mallComment);
+        return getDataTable(list);
+    }
 }

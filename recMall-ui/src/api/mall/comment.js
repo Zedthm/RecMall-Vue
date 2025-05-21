@@ -42,3 +42,11 @@ export function delComment(id) {
     method: 'delete'
   })
 }
+
+export function getSingleBookComment(bookId) {
+  return request({
+    url: '/mall/comment/singleBook/' + bookId,
+    method: 'get'
+    // params: query
+  })
+}

@@ -113,6 +113,16 @@ export const constantRoutes = [
     component: () => import('@/views/front/cart'),
     hidden: true
   },
+  {
+    path: '/front/address',
+    component: () => import('@/views/front/address'),
+    hidden: true
+  },
+  {
+    path: '/front/book-detail',
+    component: () => import('@/views/front/book-detail'),
+    hidden: true
+  }
 ]
 
 // 动态路由，基于用户权限动态去加载

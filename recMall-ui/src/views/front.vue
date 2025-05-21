@@ -130,7 +130,7 @@
                 <img
                   @mouseover="changeCursorStyle"
                   @mouseleave="resetCursorStyle"
-                  @click="navTo('/front/detail?id=' + item.bookId)"
+                  @click="navTo(`/front/book-detail?id=${item.bookId}&coverImg=${encodeURIComponent(getBookCover(item))}`)"
                   :src=getBookCover(item)
                   alt="图书封面"
                   class="book-cover"
@@ -166,17 +166,34 @@
             </el-col>
           </el-row>
         </div>
-        <div
-          style="margin: 40px 0 0 15px; height: 40px; background-color: #04BF04FF; font-size: 20px; color: white; width: 200px; font-weight: bold; line-height: 40px; text-align: center; border-radius: 20px">
-          DeepFM商品推荐
+        <div style="display: flex; align-items: center; margin: 40px 0 0 15px;">
+          <div
+            style="height: 40px; background-color: #04BF04FF; font-size: 20px;
+          color: white; width: 200px; font-weight: bold;
+          line-height: 40px; text-align: center;
+          border-radius: 20px 0 0 20px;">
+            DeepFM商品推荐
+          </div>
+          <!-- 刷新按钮 -->
+          <div
+            style="height: 40px; width: 100px; background-color: #04BF04FF;
+          margin-left: 2px; border-radius: 0 20px 20px 0;
+          display: flex; align-items: center; justify-content: center;
+          cursor: pointer; transition: all 0.3s;"
+            @click="refreshDeepFMRecommendation"
+            @mouseenter="highlightButton($event, true)"
+            @mouseleave="highlightButton($event, false)">
+            <i class="el-icon-refresh" style="color: white; font-size: 18px; margin-right: 5px"></i>
+            <span style="color: white; font-size: 14px">换一批</span>
+          </div>
         </div>
         <div style="margin: 10px 5px 0 5px">
           <el-row :gutter="20">
             <!-- 修改字段映射，添加数据校验 -->
             <el-col
               :span="5"
-              v-for="(item, index) in DeepFMBookList.slice(0, 10)"
-              :key="item.bookId"
+              v-for="(item, index) in getCurrentDeepFMSlice()"
+              :key="item.bookId + '-' + currentDeepFMPage"
               style="margin-bottom: 20px;"
             >
               <!-- 图片处理优化 -->
@@ -184,7 +201,7 @@
                 <img
                   @mouseover="changeCursorStyle"
                   @mouseleave="resetCursorStyle"
-                  @click="navTo('/front/detail?id=' + item.bookId)"
+                  @click="navTo(`/front/book-detail?id=${item.bookId}&coverImg=${encodeURIComponent(getBookCover(item))}`)"
                   :src=getBookCover(item)
                   alt="图书封面"
                   class="book-cover"
@@ -220,17 +237,34 @@
             </el-col>
           </el-row>
         </div>
-        <div
-          style="margin: 40px 0 0 15px; height: 40px; background-color: #04BF04FF; font-size: 20px; color: white; width: 130px; font-weight: bold; line-height: 40px; text-align: center; border-radius: 20px">
-          NCF商品推荐
+        <div style="display: flex; align-items: center; margin: 40px 0 0 15px;">
+          <div
+            style="height: 40px; background-color: #04BF04FF; font-size: 20px;
+          color: white; width: 130px; font-weight: bold;
+          line-height: 40px; text-align: center;
+          border-radius: 20px 0 0 20px;">
+            NCF商品推荐
+          </div>
+          <!-- 刷新按钮 -->
+          <div
+            style="height: 40px; width: 100px; background-color: #04BF04FF;
+          margin-left: 2px; border-radius: 0 20px 20px 0;
+          display: flex; align-items: center; justify-content: center;
+          cursor: pointer; transition: all 0.3s;"
+            @click="refreshNCFRecommendation"
+            @mouseenter="highlightButton($event, true)"
+            @mouseleave="highlightButton($event, false)">
+            <i class="el-icon-refresh" style="color: white; font-size: 18px; margin-right: 5px"></i>
+            <span style="color: white; font-size: 14px">换一批</span>
+          </div>
         </div>
         <div style="margin: 10px 5px 0 5px">
           <el-row :gutter="20">
             <!-- 修改字段映射，添加数据校验 -->
             <el-col
               :span="5"
-              v-for="(item, index) in NCFBookList.slice(0, 10)"
-              :key="item.bookId"
+              v-for="(item, index) in getCurrentNCFSlice()"
+              :key="item.bookId + '-' + currentDeepFMPage"
               style="margin-bottom: 20px;"
             >
               <!-- 图片处理优化 -->
@@ -238,7 +272,7 @@
                 <img
                   @mouseover="changeCursorStyle"
                   @mouseleave="resetCursorStyle"
-                  @click="navTo('/front/detail?id=' + item.bookId)"
+                  @click="navTo(`/front/book-detail?id=${item.bookId}&coverImg=${encodeURIComponent(getBookCover(item))}`)"
                   :src=getBookCover(item)
                   alt="图书封面"
                   class="book-cover"
@@ -343,6 +377,11 @@ export default {
       maxDefaultCovers: 30, // 根据实际图片数量修改
       coverCache: new Map(),
       isDataStabilized: false,
+      currentDeepFMPage: 0, // DeepFM当前页
+      currentNCFPage: 0,    // NCF当前页
+      pageSize: 10,         // 每页数量
+      deepFMRecommendations: [], // 完整推荐列表
+      ncfRecommendations: []     // 完整推荐列
     }
   },
   created() {
@@ -374,7 +413,6 @@ export default {
       }
       return this.coverCache.get(bookId);
     },
-
     // 简单哈希函数
     simpleHash(str) {
       let hash = 0;
@@ -419,14 +457,12 @@ export default {
         this.defaultCovers = [require('@/assets/default-book.png')];
       }
     },
-
     // 获取封面图片地址
     getBookCover(item) {
       if (item.img) return item.img;
       const index = this.getStableCoverIndex(item.bookId);
       return this.defaultCovers[index] || require('@/assets/default-book.png');
     },
-
     // 生成随机默认封面
     getRandomDefaultCover() {
       if (this.defaultCovers.length > 0) {
@@ -449,7 +485,6 @@ export default {
         if (this.user.id) this.loadRecommend()
       }
     }, 200),
-
     // 初始化滚动监听
     initScrollListener() {
       window.addEventListener('scroll', this.handleScroll)
@@ -458,7 +493,6 @@ export default {
     formatPrice(price) {
       return Number(price || 0).toFixed(2)
     },
-
     // 图片加载失败处理
     handleImageError(e) {
       const img = e.target;
@@ -470,7 +504,6 @@ export default {
       // 添加错误状态标识
       img.classList.add('cover-error');
     },
-
     goToProfile(url) {
       if (this.user.userId == null) {
         this.$message.warning('请先登录'); // 提示用户登录
@@ -486,7 +519,12 @@ export default {
       event.target.style.cursor = 'default';
     },
     navTo(url) {
-      location.href = url;
+      const [path, query] = url.split('?')
+      const params = Object.fromEntries(new URLSearchParams(query))
+      this.$router.push({
+        path,
+        query: params
+      })
     },
     async loadData() {
       if (this.isDataStabilized) return;
@@ -513,7 +551,8 @@ export default {
       this.loading = true;
       return listRecBooksDeepFM(this.user.userId).then(res => {
         if (res.code == '200') {
-          this.DeepFMBookList = res.rows.slice(0, 10);
+          this.DeepFMBookList = res.rows;
+          this.deepFMRecommendations = res.rows;
         } else {
           this.$message.error(res.msg);
         }
@@ -526,7 +565,8 @@ export default {
       this.loading = true;
       return listRecBooksNeuralCF(this.user.userId).then(res => {
         if (res.code == '200') {
-          this.NCFBookList = res.rows.slice(0, 10);
+          this.NCFBookList = res.rows;
+          this.ncfRecommendations = res.rows;
         } else {
           this.$message.error(res.msg);
         }
@@ -583,6 +623,98 @@ export default {
         console.error("加载公告错误:", error);
         this.$message.error('加载公告失败');
       });
+    },
+    // 按钮悬停效果
+    highlightButton(event, isEnter) {
+      const btn = event.currentTarget
+      if (isEnter) {
+        btn.style.opacity = 0.8
+        btn.style.transform = 'scale(1.05)'
+      } else {
+        btn.style.opacity = 1
+        btn.style.transform = 'scale(1)'
+      }
+    },
+    getCurrentDeepFMSlice() {
+      const start = this.currentDeepFMPage * this.pageSize;
+      const end = start + this.pageSize;
+      return this.deepFMRecommendations.slice(start, end);
+    },
+    getCurrentNCFSlice() {
+      const start = this.currentNCFPage * this.pageSize;
+      const end = start + this.pageSize;
+      return this.ncfRecommendations.slice(start, end);
+    },
+    // 刷新DeepFM推荐
+    async refreshDeepFMRecommendation() {
+      try {
+        if (!this.user.userId) {
+          this.$message.warning('请先登录')
+          return this.$router.push('/login')
+        }
+
+        const res = await listRecBooksDeepFM(this.user.userId, {
+          fresh: true // 添加刷新参数
+        })
+
+        if (res.code === 200) {
+          this.DeepFMBookList = res.rows.slice(0, 10)
+          this.$message.success('推荐内容已更新')
+        }
+      } catch (error) {
+        this.$message.error('推荐刷新失败')
+        console.error('DeepFM推荐刷新失败:', error)
+      }
+      this.currentDeepFMPage++;
+      if ((this.currentDeepFMPage + 1) * this.pageSize > this.deepFMRecommendations.length) {
+        this.currentDeepFMPage = 0;
+        this.shuffleRecommendations('deepFM');
+      }
+    },
+
+    shuffleRecommendations(type) {
+      const list = type === 'deepFM' ? this.deepFMRecommendations : this.ncfRecommendations;
+      const keepCount = Math.floor(list.length * 0.2);
+
+      // Fisher-Yates 洗牌算法优化
+      for (let i = keepCount; i < list.length; i++) {
+        const j = Math.floor(Math.random() * (list.length - keepCount)) + keepCount;
+        [list[i], list[j]] = [list[j], list[i]];
+      }
+
+      // 更新响应式数据
+      if (type === 'deepFM') {
+        this.deepFMRecommendations = [...list];
+      } else {
+        this.ncfRecommendations = [...list];
+      }
+    },
+
+    // 刷新NCF推荐
+    async refreshNCFRecommendation() {
+      try {
+        if (!this.user.userId) {
+          this.$message.warning('请先登录')
+          return this.$router.push('/login')
+        }
+
+        const res = await listRecBooksNeuralCF(this.user.userId, {
+          fresh: true // 添加刷新参数
+        })
+
+        if (res.code === 200) {
+          this.NCFBookList = res.rows.slice(0, 10)
+          this.$message.success('推荐内容已更新')
+        }
+      } catch (error) {
+        this.$message.error('推荐刷新失败')
+        console.error('NCF推荐刷新失败:', error)
+      }
+      this.currentNCFPage++;
+      if ((this.currentNCFPage + 1) * this.pageSize > this.ncfRecommendations.length) {
+        this.currentNCFPage = 0;
+        this.shuffleRecommendations('ncf');
+      }
     },
   }
 }
@@ -806,5 +938,44 @@ export default {
 body {
   color: var(--text-dark);
   font-family: 'Helvetica Neue', Helvetica, Arial, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+}
+
+/* 添加加载旋转动画 */
+@keyframes refresh-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.refreshing i.el-icon-refresh {
+  animation: refresh-spin 1s linear infinite;
+}
+
+/* 按钮点击动效 */
+.refresh-btn:active {
+  transform: scale(0.95);
+  opacity: 0.9;
+}
+
+/* 添加换场动画 */
+.recommend-item {
+  transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.recommend-enter-active, .recommend-leave-active {
+  transition: opacity 0.5s, transform 0.5s;
+}
+
+.recommend-enter {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.recommend-leave-to {
+  opacity: 0;
+  transform: translateY(-20px);
 }
 </style>

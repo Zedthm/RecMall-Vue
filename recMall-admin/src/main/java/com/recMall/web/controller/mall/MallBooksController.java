@@ -1,9 +1,14 @@
 package com.recMall.web.controller.mall;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import javax.servlet.http.HttpServletResponse;
 
+import com.recMall.mall.domain.MallBookTags;
+import com.recMall.mall.domain.MallTags;
+import com.recMall.mall.service.IMallBookTagsService;
+import com.recMall.mall.service.IMallTagsService;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +42,10 @@ public class MallBooksController extends BaseController {
     private IMallBooksService mallBooksService;
     @Autowired
     public RedisTemplate redisTemplate;
-
+    @Autowired
+    private IMallBookTagsService mallBookTagsService;
+    @Autowired
+    private IMallTagsService mallTagsService;
     /**
      * 查询商品信息-书籍核心数据列表
      */
@@ -115,4 +123,44 @@ public class MallBooksController extends BaseController {
     public AjaxResult remove(@PathVariable String[] bookIds) {
         return toAjax(mallBooksService.deleteMallBooksByBookIds(bookIds));
     }
+
+    /*
+    * 图书详细信息
+    * */
+    @PreAuthorize("@ss.hasPermi('mall:books:list')")
+    @GetMapping("/info/{bookId}")
+    public AjaxResult info(@PathVariable("bookId") String bookId) {
+        String bookKey = "book:info:" + bookId;
+        MallBooks mallBook = (MallBooks) redisTemplate.opsForValue().get(bookKey);
+        if (mallBook == null) {
+            // 缓存未命中，查询数据库
+            mallBook = mallBooksService.selectMallBooksByBookId(bookId);
+            if (mallBook != null) {
+                // 存入Redis，1小时过期
+                redisTemplate.opsForValue().set(bookKey, mallBook, 48, TimeUnit.HOURS);
+            } else {
+                // 处理空值，防止缓存穿透
+                redisTemplate.opsForValue().set(bookKey, new MallBooks(), 1, TimeUnit.MINUTES);
+            }
+        }
+        return success(mallBook);
+    }
+
+    /*
+    * 获取图书标签
+    * */
+    @PreAuthorize("@ss.hasPermi('mall:books:list')")
+    @GetMapping("/tags/{bookId}")
+    public AjaxResult tags(@PathVariable("bookId") String bookId) {
+        MallBookTags mallBookTags = new MallBookTags();
+        mallBookTags.setBookId(bookId);
+        List<MallBookTags> mallBookTagsList = mallBookTagsService.selectMallBookTagsList(mallBookTags);
+        List<MallTags> result = new ArrayList<MallTags>();
+        for (MallBookTags bookTags : mallBookTagsList) {
+            MallTags mallTags = mallTagsService.selectMallTagsByTagId(bookTags.getTagId());
+            result.add(mallTags);
+        }
+        return success(result);
+    }
+
 }

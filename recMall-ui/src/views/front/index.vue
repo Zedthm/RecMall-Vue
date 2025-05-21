@@ -130,7 +130,7 @@
                 <img
                   @mouseover="changeCursorStyle"
                   @mouseleave="resetCursorStyle"
-                  @click="navTo('/front/detail?id=' + item.bookId)"
+                  @click="navTo(`/front/book-detail?id=${item.bookId}&coverImg=${encodeURIComponent(getBookCover(item))}`)"
                   :src=getBookCover(item)
                   alt="图书封面"
                   class="book-cover"
@@ -184,7 +184,7 @@
                 <img
                   @mouseover="changeCursorStyle"
                   @mouseleave="resetCursorStyle"
-                  @click="navTo('/front/detail?id=' + item.bookId)"
+                  @click="navTo(`/front/book-detail?id=${item.bookId}&coverImg=${encodeURIComponent(getBookCover(item))}`)"
                   :src=getBookCover(item)
                   alt="图书封面"
                   class="book-cover"
@@ -238,7 +238,7 @@
                 <img
                   @mouseover="changeCursorStyle"
                   @mouseleave="resetCursorStyle"
-                  @click="navTo('/front/detail?id=' + item.bookId)"
+                  @click="navTo(`/front/book-detail?id=${item.bookId}&coverImg=${encodeURIComponent(getBookCover(item))}`)"
                   :src=getBookCover(item)
                   alt="图书封面"
                   class="book-cover"
@@ -486,7 +486,12 @@ export default {
       event.target.style.cursor = 'default';
     },
     navTo(url) {
-      location.href = url;
+      const [path, query] = url.split('?')
+      const params = Object.fromEntries(new URLSearchParams(query))
+      this.$router.push({
+        path,
+        query: params
+      })
     },
     async loadData() {
       if (this.isDataStabilized) return;
