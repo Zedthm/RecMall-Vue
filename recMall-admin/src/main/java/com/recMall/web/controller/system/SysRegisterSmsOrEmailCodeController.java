@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import javax.mail.MessagingException;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -31,11 +32,11 @@ public class SysRegisterSmsOrEmailCodeController extends BaseController {
     private RedisCache redisCache;
 
     @PostMapping("/register/sendCode")
-    public AjaxResult sendCode(@RequestBody Map<String, String> params) throws ClientException {
+    public AjaxResult sendCode(@RequestBody Map<String, String> params) throws ClientException, MessagingException {
         String type = params.get("type");
         String account = params.get(type);
 
-        if (!"phone".equals(type) && !"email".equals(type)) {
+        if (!"phonenumber".equals(type) && !"email".equals(type)) {
             return AjaxResult.error("类型错误");
         }
         if (account == null || account.isEmpty()) {
@@ -49,7 +50,11 @@ public class SysRegisterSmsOrEmailCodeController extends BaseController {
         }
         redisCache.setCacheObject(rateKey, "1", 1, TimeUnit.MINUTES);
 
-        captchaService.generateAndSendCode(account, type);
-        return AjaxResult.success();
+        boolean flag = captchaService.generateAndSendCode(account, type);
+        if (flag) {
+            return AjaxResult.success();
+        } else {
+            return AjaxResult.error("发送失败");
+        }
     }
 }

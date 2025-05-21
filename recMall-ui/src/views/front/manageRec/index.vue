@@ -4,112 +4,8 @@
     <div style="display: flex">
       <div class="left"></div>
       <div style="width: 66%; background-color: white; overflow-y: auto; max-height: 100vh;">
-        <!-- 修改主题市场标题部分 -->
-        <div class="section-header">
-          <div class="decorative-line"></div>
-          <h2 class="section-title">主题市场</h2>
-          <div class="decorative-line"></div>
-        </div>
-        <div style="display: flex; margin: 0 25px; height: 550px">
-          <!-- 优化分类列表 -->
-          <div class="category-wrapper">
-            <div
-              v-for="item in categoriesList"
-              :key="item.categoryId"
-              class="category-item"
-              @mouseenter="hoverCategory = item.categoryId"
-              @mouseleave="hoverCategory = null"
-            >
-              <div class="category-icon">
-                <img :src="item.img | fixImgPath" alt="分类图标">
-              </div>
-              <div class="category-name">
-                <router-link
-                  :to="'/front/category?id=' + item.categoryId"
-                  class="category-link"
-                >
-                  {{ item.categoryName }}
-                </router-link>
-              </div>
-              <div
-                class="hover-indicator"
-                :class="{ active: hoverCategory === item.categoryId }"
-              ></div>
-            </div>
-          </div>
-          <div style="flex: 5; margin-top: 15px">
-            <div>
-              <el-carousel height="300px" style="border-radius: 10px">
-                <el-carousel-item v-for="item in carousel_top">
-                  <img :src="item" alt="" style="width: 100%; height: 300px; border-radius: 10px">
-                </el-carousel-item>
-              </el-carousel>
-            </div>
-            <div style="margin-top: 30px; display: flex">
-              <div style="flex: 1">
-                <el-carousel height="300px" style="border-radius: 10px">
-                  <el-carousel-item v-for="item in carousel_left">
-                    <img :src="item" alt="" style="width: 100%; height: 200px; border-radius: 10px">
-                  </el-carousel-item>
-                </el-carousel>
-              </div>
-              <div style="flex: 1; margin-left: 5px">
-                <el-carousel height="300px" style="border-radius: 10px">
-                  <el-carousel-item v-for="item in carousel_right">
-                    <img :src="item" alt="" style="width: 100%; height: 200px; border-radius: 10px">
-                  </el-carousel-item>
-                </el-carousel>
-              </div>
-            </div>
-          </div>
-          <div style="flex: 3; background-color: #F3F3F3FF; margin-top: 15px; margin-left: 15px; border-radius: 10px;">
-            <div style="text-align: center; margin-top: 30px; ">
-              <img
-                @click="goToProfile('/user/profile')"
-                :src="user.avatar || require('@/assets/default-avatar.png')"
-                alt="用户头像"
-                style="cursor: pointer; width: 80px; height: 80px; border-radius: 50%"
-                @mouseover="changeCursorStyle"
-                @mouseleave="resetCursorStyle">
-              <div style="margin-top: 10px">Hi，{{ user.nickName || '欢迎回来' }}</div>
-            </div>
-
-            <div style="margin-top: 20px; padding: 0 15px">
-              <img src="@/assets/icons/front/right.png" alt="" style="height: 150px; width: 100%; border-radius: 20px">
-            </div>
-
-            <div style="margin: 20px 10px 10px 10px; width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">
-              <i class="el-icon-bell"></i>
-              <span style="font-weight: bold">公告</span>
-              <span style="color: #666666;">：{{ topNotice }}</span>
-            </div>
-
-            <div style="display: flex; margin-top: 50px">
-              <div @click="goToProfile('/front/collect')" style="flex: 1; text-align: center; cursor: pointer;"
-                   @mouseover="changeCursorStyle" @mouseleave="resetCursorStyle">
-                <img src="@/assets/icons/front/收藏.png" alt="" style="height: 25px; width: 25px">
-                <div>我的收藏</div>
-              </div>
-              <div @click="goToProfile('/front/address')" style="flex: 1; text-align: center; cursor: pointer;" @mouseover="changeCursorStyle"
-                   @mouseleave="resetCursorStyle">
-                <img src="@/assets/icons/front/店铺.png" alt="" style="height: 25px; width: 25px">
-                <div>我的地址</div>
-              </div>
-              <div @click="goToProfile('/front/cart')" style="flex: 1; text-align: center; cursor: pointer;" @mouseover="changeCursorStyle"
-                   @mouseleave="resetCursorStyle">
-                <img src="@/assets/icons/front/购物车.png" alt="" style="height: 25px; width: 25px">
-                <div>我的购物车</div>
-              </div>
-              <div @click="goToProfile('/front/orders')" style="flex: 1; text-align: center; cursor: pointer;" @mouseover="changeCursorStyle"
-                   @mouseleave="resetCursorStyle">
-                <img src="@/assets/icons/front/订单.png" alt="" style="height: 25px; width: 25px">
-                <div>我的订单</div>
-              </div>
-            </div>
-          </div>
-        </div>
         <div style="margin: 40px 0 0 15px; height: 40px; background-color: #04BF04FF; font-size: 20px; color: white; width: 130px; font-weight: bold; line-height: 40px; text-align: center; border-radius: 20px">
-          DeepFm模型推荐
+          DeepFM模型推荐
         </div>
         <div style="margin: 10px 5px 0 5px">
           <el-row :gutter="20">
@@ -166,7 +62,7 @@
           <span v-if="!booksHasMore" class="no-more">已加载全部商品</span>
         </div>
         <div style="margin: 40px 0 0 15px; height: 40px; background-color: #04BF04FF; font-size: 20px; color: white; width: 130px; font-weight: bold; line-height: 40px; text-align: center; border-radius: 20px">
-          NCF模型推荐
+          NCF推荐
         </div>
         <div style="margin: 10px 5px 0 5px">
           <el-row :gutter="20">
@@ -183,7 +79,7 @@
                   @mouseover="changeCursorStyle"
                   @mouseleave="resetCursorStyle"
                   @click="navTo('/front/detail?id=' + item.bookId)"
-                  :src=getBookCover(item)
+                  :src="item.img || require('@/assets/default-book.png')"
                   alt="图书封面"
                   class="book-cover"
                   @error="handleImageError"
@@ -411,7 +307,7 @@ export default {
     },
     loadData() {
       // 使用 Promise.all 并行加载所有数据
-      Promise.all([this.getCategories(), this.getNotices(), this.getBooks(), this.getRecBooksDeepFM()])
+      Promise.all([this.getBooksNCF(), this.getRecBooksDeepFM()])
           .then(() => {
             console.log("所有数据加载完成");
           })
@@ -434,9 +330,9 @@ export default {
         this.$message.error('加载推荐商品失败');
       });
     },
-    getBooks() {
+    getBooksNCF() {
       this.loading = true;
-      return  listBooks(this.queryParams).then(res => {
+      return  listRecBooksDeepFM(500).then(res => {
         if (res.code == '200') {
           this.booksList = res.rows;
         } else {
@@ -450,7 +346,7 @@ export default {
     },
     getRecBooksDeepFM(){
       this.loading = true;
-      return listRecBooksDeepFM(500).then(res => {
+      return listRecBooksNeuralCF(500).then(res => {
         if (res.code == '200') {
           this.recommendData = res.rows;
         }else{
@@ -459,41 +355,6 @@ export default {
       }).catch(error => {
         console.error("加载推荐商品错误:", error);
         this.$message.error('加载推荐商品商品失败');
-      });
-    },
-    getCategories() {
-      this.loading = true;
-      return listCategories(this.queryParams).then(res => {
-        console.log(res);
-        if (res.code == '200') {
-          this.categoriesList = res.rows;
-        } else {
-          this.$message.error(res.msg);
-        }
-      }).catch(error => {
-        console.error("加载商品错误:", error);
-        this.$message.error('加载商品失败');
-      });
-    },
-    getNotices() {
-      return listNotice(this.queryParams).then(res => {
-        this.noticeList = res.rows; // 修正字段名rows
-        let i = 0;
-        if (this.noticeList && this.noticeList.length) {
-          // 清除旧定时器防止重复
-          if (this.intervalId) clearInterval(this.intervalId);
-
-          // 使用noticeContent字段
-          this.topNotice = this.noticeList[0].noticeContent;
-
-          this.intervalId = setInterval(() => {
-            this.topNotice = `${this.noticeList[i].noticeTitle}：${this.noticeList[i].noticeContent}`;
-            i = (i + 1) % this.noticeList.length; // 更简洁的循环逻辑
-          }, 2500);
-        }
-      }).catch(error => {
-        console.error("加载公告错误:", error);
-        this.$message.error('加载公告失败');
       });
     },
   }

@@ -327,7 +327,7 @@ public class MallRecBooksController extends BaseController {
                                 userDtoFuture.join(),
                                 bookDtoFuture.join()
                         );
-                        backUp =  new CopyOnWriteArrayList<>(recommendations) ;
+                        backUp =  new CopyOnWriteArrayList<Recommendation>(recommendations) ;
                         return getRecBookList(recommendations, userId);
                     }, executor)
                     .exceptionally(e -> {

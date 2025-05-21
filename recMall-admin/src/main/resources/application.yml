@@ -47,6 +47,16 @@ user:
 
 # Spring配置
 spring:
+  mall:
+    username: 3013419596@qq.com
+    password: mnnvtmsxolxcdhea
+    host: smtp.qq.com
+    default-encoding: utf-8
+    properties:
+      mail:
+        smtp:
+          ssl:
+            enable: ture
   # 资源信息
   messages:
     # 国际化资源文件路径
